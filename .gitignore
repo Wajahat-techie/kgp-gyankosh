@@ -3,15 +3,14 @@
 .env.local
 .env.*.local
 
-# Authentication credentials (NEVER COMMIT REAL CREDENTIALS)
-config/auth_config.yaml
-!config/auth_config.yaml.example
+# Authentication credentials (Template committed for demo deployment)
+# config/auth_config.yaml is included for Streamlit Cloud deployment
 
-# Vector databases, cached indices, and large local artifacts
-output/vector_store/
-output/bm25_store/
+# Vector databases, cached indices, and manifest (Required for Streamlit Cloud deployment)
+# output/vector_store/
+# output/bm25_store/
+# output/index_manifest.json
 output/index_logs/*.log
-output/index_manifest.json
 
 # Real / sensitive document directory (only sample_notices is committed)
 data/real_notices/
