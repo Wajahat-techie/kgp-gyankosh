@@ -1,0 +1,24 @@
+# ==============================================================================
+# KGP Gyankosh - Authentication Configuration Template (auth_config.yaml.example)
+# Copy to config/auth_config.yaml and configure bcrypt password hashes.
+# ==============================================================================
+
+cookie:
+  name: "kgp_gyankosh_auth"
+  key: "kgp_secure_secret_cookie_key_replace_in_prod"
+  expiry_days: 1
+
+credentials:
+  usernames:
+    admin_kgp:
+      email: "admin@kgpolytechnic.ac.in"
+      name: "Principal / Head of Administration"
+      # Default demo password: KgpAdmin@2026 (pre-hashed with bcrypt)
+      password: "$2b$12$l8Xj6FHownIU6ErLi0rLyOt.CTiGXYGIhEcq8HxKqb3fl38HKpzhC"
+      role: "admin"
+    clerk_academic:
+      email: "academic.section@kgpolytechnic.ac.in"
+      name: "Academic Section In-Charge"
+      # Default demo password: Academic@2026 (pre-hashed with bcrypt)
+      password: "$2b$12$6sGCCmmCoDVHkvMY3RNjFugTerI//YW99Q0B2oExdVV1o.odiyogy"
+      role: "staff"

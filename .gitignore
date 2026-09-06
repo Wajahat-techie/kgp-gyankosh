@@ -1,0 +1,54 @@
+# Environment variables & secrets (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+
+# Authentication credentials (NEVER COMMIT REAL CREDENTIALS)
+config/auth_config.yaml
+!config/auth_config.yaml.example
+
+# Vector databases, cached indices, and large local artifacts
+output/vector_store/
+output/bm25_store/
+output/index_logs/*.log
+output/index_manifest.json
+
+# Real / sensitive document directory (only sample_notices is committed)
+data/real_notices/
+data/confidential/
+
+# Python cache & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
