@@ -633,12 +633,51 @@ iframe[title*="html"] {
     display: none !important;
 }
 
+/* Premium Glassmorphic Download Cards & Buttons */
+.download-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 27, 75, 0.65) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    transition: all 0.25s ease;
+}
+
+.download-card:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 8px 25px rgba(56, 189, 248, 0.25);
+    transform: translateY(-2px);
+}
+
+[data-testid="stDownloadButton"] > button {
+    background: linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    padding: 0.55rem 1.2rem !important;
+    box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4) !important;
+    transition: all 0.22s ease !important;
+    cursor: pointer !important;
+    text-transform: none !important;
+    width: 100% !important;
+}
+
+[data-testid="stDownloadButton"] > button:hover {
+    background: linear-gradient(135deg, #0ea5e9 0%, #22d3ee 50%, #6366f1 100%) !important;
+    box-shadow: 0 8px 28px rgba(6, 182, 212, 0.65), 0 0 15px rgba(56, 189, 248, 0.4) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+}
+
 /* Expander Cards (Citations & Info) */
 [data-testid="stExpander"] {
-    background: rgba(15, 23, 42, 0.65) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 14px !important;
-    margin-top: 0.6rem !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
+    border-radius: 16px !important;
+    margin-top: 0.8rem !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
 }
 
 [data-testid="stExpander"] details summary {
@@ -831,83 +870,108 @@ def get_document_download_info(source_filename: str, page_num: int = None, manif
 
 def linkify_answer_citations(answer_text: str, manifest: dict = None) -> str:
     """
-    Cleans and styles document citations in the answer text using clickable download badges.
-    Clicking a multi-page PDF citation downloads specifically that cited order page.
+    Cleans and transforms document citations in the synthesized LLM answer text into
+    responsive, interactive download badges with icons.
     """
     if not answer_text:
         return answer_text
 
-    pattern = r'\[([^\]\n]+?\.(?:docx|pdf|txt|png|jpg|jpeg))\s*(?:,\s*Page\s*(\d+))?\]'
+    # Match bracketed [doc.pdf, Page X], parenthetical (doc.pdf, Page X), or raw doc.pdf (Page X) citations
+    patterns = [
+        r'\[\s*([a-zA-Z0-9_\-\s\(\)]+?\.(?:docx|pdf))\s*(?:,\s*Page\s*(\d+))?\s*\]',
+        r'\(\s*([a-zA-Z0-9_\-\s\(\)]+?\.(?:docx|pdf))\s*(?:,\s*Page\s*(\d+)|\s*Page\s*(\d+))?\s*\)',
+        r'(?:\b)([a-zA-Z0-9_\-]+\.(?:docx|pdf))\s*(?:\(Page\s*(\d+)\)|,\s*Page\s*(\d+)|\s*Page\s*(\d+))'
+    ]
 
-    def _replace(match):
-        doc_name = match.group(1).strip()
-        page_num_str = match.group(2)
-        page_num = int(page_num_str) if page_num_str and page_num_str.isdigit() else 1
-        page_suffix = f", Page {page_num}" if page_num_str else ""
+    def _make_badge(match, is_pattern_3=False):
+        groups = match.groups()
+        doc_name = groups[0].strip() if groups[0] else ""
+        page_num_str = None
+        for g in groups[1:]:
+            if g and g.isdigit():
+                page_num_str = g
+                break
+        page_num = int(page_num_str) if page_num_str else 1
+        page_suffix = f" (Page {page_num})" if page_num_str else ""
 
         dl_url, dl_filename, is_page, _ = get_document_download_info(doc_name, page_num, manifest)
+        icon = "📕" if doc_name.lower().endswith(".pdf") else "📘"
+
         if dl_url:
             badge_title = f"Click to download Page {page_num} of {doc_name}" if is_page else f"Click to download {doc_name}"
             return (
                 f'<a href="{dl_url}" download="{dl_filename}" target="_blank" '
-                f'style="display: inline-block; color: #38bdf8; font-weight: 600; background: rgba(56, 189, 248, 0.12); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25); margin: 2px 0; text-decoration: none; cursor: pointer; transition: all 0.15s ease;" '
+                f'style="display: inline-flex; align-items: center; gap: 4px; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); padding: 3px 10px; border-radius: 8px; margin: 2px 2px; text-decoration: none; cursor: pointer; transition: all 0.2s ease; vertical-align: middle;" '
                 f'title="{badge_title}">'
-                f'📄 {doc_name}{page_suffix} <span style="font-size: 0.72rem; color: #a5b4fc;">📥</span></a>'
+                f'{icon} {doc_name}{page_suffix} <span style="font-size: 0.75rem; color: #38bdf8;">📥</span></a>'
             )
-        return f'<span style="display: inline-block; color: #38bdf8; font-weight: 600; background: rgba(56, 189, 248, 0.12); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25); margin: 2px 0;">📄 {doc_name}{page_suffix}</span>'
+        return f'<span style="display: inline-flex; align-items: center; gap: 4px; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 10px; border-radius: 8px; margin: 2px 2px; vertical-align: middle;">{icon} {doc_name}{page_suffix}</span>'
 
-    text = re.sub(pattern, _replace, answer_text, flags=re.IGNORECASE)
+    # Apply bracketed pattern first
+    answer_text = re.sub(patterns[0], lambda m: _make_badge(m), answer_text, flags=re.IGNORECASE)
+    # Apply parenthetical pattern
+    answer_text = re.sub(patterns[1], lambda m: _make_badge(m), answer_text, flags=re.IGNORECASE)
 
     # Style college mentions in bold with beautiful typography
     college_regex = r'(?:\*{2})?Kashmir\s+(?:Govt\.?|Government)\s+Polytechnic\s+College(?:,?\s*Srinagar)?(?:\*{2})?'
-    text = re.sub(
+    answer_text = re.sub(
         college_regex,
         '<strong class="kgp-college-badge">KASHMIR GOVERNMENT POLYTECHNIC COLLEGE, SRINAGAR</strong>',
-        text,
+        answer_text,
         flags=re.IGNORECASE
     )
-    return text
+    return answer_text
 
 
 def render_citations_and_links(sources: list, manifest: dict, key_prefix: str = "src"):
     """
-    Renders structured citations with guaranteed Streamlit native download buttons
-    and direct single-click extracted PDF page download links.
+    Renders structured citation action cards with prominent, responsive download buttons
+    and direct single-click extracted PDF page downloads.
     """
     if not sources:
         return
 
-    with st.expander(f"📚 Source Citations & Download Official Files ({len(sources)} documents)", expanded=True):
+    with st.expander(f"📚 Official Source Citations & Download Verified Files ({len(sources)} documents)", expanded=True):
+        st.markdown("<div style='margin-bottom: 8px; font-size: 0.82rem; color: #94a3b8;'>Verified official college documents retrieved for this answer:</div>", unsafe_allow_html=True)
+        
         for idx, src in enumerate(sources):
             src_name = src.get("source", "Unknown Document")
             page_num = src.get("page", 1)
             rerank_score = src.get("rerank_score")
-            score_text = f" | Rerank Score: `{rerank_score}`" if rerank_score is not None else ""
+            score_text = f" • Match Score: `{rerank_score:.3f}`" if isinstance(rerank_score, (int, float)) else ""
+            file_icon = "📕 PDF Order" if src_name.lower().endswith(".pdf") else "📘 Official Circular (DOCX)"
 
             dl_url, dl_filename, is_page, actual_path = get_document_download_info(src_name, page_num, manifest)
 
-            col_info, col_btn = st.columns([3, 1])
-            with col_info:
-                st.markdown(
-                    f"""
-                    <div style="font-size: 0.95rem; font-weight: 700; color: #38bdf8;">
-                        📄 {src_name}
-                        <span style="color: #94a3b8; font-size: 0.82rem; font-weight: 500;"> (Page {page_num})</span>
-                        <span style="color: #34d399; font-size: 0.76rem; font-weight: 600;">{score_text}</span>
+            # Container card for each source
+            st.markdown(
+                f"""
+                <div class="download-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                        <div style="font-size: 0.98rem; font-weight: 700; color: #f8fafc;">
+                            {file_icon}: <span style="color: #38bdf8;">{src_name}</span>
+                        </div>
+                        <div style="font-size: 0.78rem; font-weight: 600; color: #34d399; background: rgba(16, 185, 129, 0.15); padding: 3px 10px; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            📄 Page {page_num}{score_text}
+                        </div>
                     </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-                if src.get("excerpt"):
-                    st.caption(f"_{src.get('excerpt')[:250]}..._")
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-            with col_btn:
+            col_excerpt, col_action = st.columns([3, 1])
+            with col_excerpt:
+                if src.get("excerpt"):
+                    st.caption(f"🔎 **Excerpt:** _{src.get('excerpt')[:280]}..._")
+
+            with col_action:
                 if actual_path and os.path.exists(actual_path):
                     try:
                         with open(actual_path, "rb") as f_doc:
                             file_bytes = f_doc.read()
                         mime_type = "application/pdf" if dl_filename.endswith(".pdf") else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                        btn_label = f"📥 Page {page_num}" if is_page else "📥 Download"
+                        btn_label = f"📥 Download Page {page_num}" if is_page else "📥 Download Order"
                         st.download_button(
                             label=btn_label,
                             data=file_bytes,
@@ -919,12 +983,17 @@ def render_citations_and_links(sources: list, manifest: dict, key_prefix: str = 
                     except Exception as ex:
                         logger.warning(f"Could not prepare download for {actual_path}: {ex}")
                 elif dl_url:
-                    st.markdown(f'<a href="{dl_url}" download="{dl_filename}" target="_blank" class="doc-download-badge">📥 Download</a>', unsafe_allow_html=True)
+                    st.markdown(
+                        f'<a href="{dl_url}" download="{dl_filename}" target="_blank" '
+                        f'style="display: block; text-align: center; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 0.84rem; text-decoration: none; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);">'
+                        f'📥 Download File</a>',
+                        unsafe_allow_html=True
+                    )
 
             if idx < len(sources) - 1:
-                st.markdown("<hr style='margin: 8px 0; border: none; border-top: 1px solid rgba(255,255,255,0.07);'>", unsafe_allow_html=True)
+                st.markdown("<hr style='margin: 10px 0; border: none; border-top: 1px solid rgba(255,255,255,0.08);'>", unsafe_allow_html=True)
 
-        st.caption("💡 _Click any download button to retrieve that exact cited order page or document directly to your device._")
+        st.caption("💡 _Click any download button to download that exact verified order page or circular directly to your device._")
 
 
 # ==============================================================================
