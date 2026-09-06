@@ -75,10 +75,11 @@ CAMPUS_BG_BASE64 = load_campus_bg_base64()
 if CAMPUS_BG_BASE64:
     APP_BG_STYLE = f"""
     background: 
-        radial-gradient(ellipse at 20% 0%, rgba(56, 189, 248, 0.22) 0%, transparent 55%),
-        radial-gradient(ellipse at 80% 0%, rgba(129, 140, 248, 0.24) 0%, transparent 55%),
-        radial-gradient(ellipse at 50% 100%, rgba(6, 182, 212, 0.18) 0%, transparent 55%),
-        linear-gradient(155deg, rgba(6, 10, 22, 0.88) 0%, rgba(9, 16, 36, 0.82) 45%, rgba(15, 14, 38, 0.88) 100%),
+        radial-gradient(ellipse at 15% 0%, rgba(6, 182, 212, 0.28) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 10%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 90%, rgba(236, 72, 153, 0.2) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.22) 0%, transparent 45%),
+        linear-gradient(155deg, rgba(4, 7, 18, 0.9) 0%, rgba(8, 14, 32, 0.85) 45%, rgba(16, 12, 38, 0.9) 100%),
         url("data:image/jpeg;base64,{CAMPUS_BG_BASE64}") !important;
     background-size: cover !important;
     background-position: center center !important;
@@ -88,20 +89,20 @@ if CAMPUS_BG_BASE64:
 else:
     APP_BG_STYLE = """
     background: 
-        radial-gradient(ellipse at 20% 10%, rgba(56, 189, 248, 0.28) 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 15%, rgba(168, 85, 247, 0.25) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 85%, rgba(14, 165, 233, 0.22) 0%, transparent 55%),
-        radial-gradient(ellipse at 90% 80%, rgba(16, 185, 129, 0.18) 0%, transparent 45%),
-        linear-gradient(150deg, #050812 0%, #091024 35%, #0f1533 70%, #070d1c 100%) !important;
+        radial-gradient(ellipse at 15% 10%, rgba(6, 182, 212, 0.32) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 15%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 85%, rgba(14, 165, 233, 0.25) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 80%, rgba(236, 72, 153, 0.22) 0%, transparent 45%),
+        linear-gradient(150deg, #030611 0%, #070e24 35%, #0e1232 70%, #050a1b 100%) !important;
     background-attachment: fixed !important;
     """
 
 # ==============================================================================
-# ENTERPRISE MODERN DARK GLASSMORPHISM THEME & CSS
+# ENTERPRISE MODERN RADIANT GLASSMORPHISM THEME & CSS
 # ==============================================================================
 CUSTOM_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 /* Global Font & Reset - preserve Streamlit Material icon font ligatures */
 html, body {
@@ -133,14 +134,14 @@ header[data-testid="stHeader"] {
     height: 7px;
 }
 ::-webkit-scrollbar-track {
-    background: #090d16;
+    background: #050811;
 }
 ::-webkit-scrollbar-thumb {
-    background: #1e293b;
+    background: linear-gradient(180deg, #06b6d4 0%, #6366f1 100%);
     border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #6366f1;
+    background: #38bdf8;
 }
 
 /* ==============================================================================
@@ -156,37 +157,38 @@ header[data-testid="stHeader"] {
 }
 
 .gov-pill {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(139, 92, 246, 0.12) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    color: #c7d2fe;
-    font-size: 0.76rem;
-    font-weight: 700;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.22) 0%, rgba(99, 102, 241, 0.25) 100%);
+    border: 1.5px solid rgba(56, 189, 248, 0.55);
+    color: #7dd3fc;
+    font-size: 0.78rem;
+    font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 6px 16px;
+    padding: 6px 18px;
     border-radius: 9999px;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
 }
 
 .dept-pill {
-    background: rgba(6, 182, 212, 0.12);
-    border: 1px solid rgba(6, 182, 212, 0.35);
-    color: #67e8f9;
-    font-size: 0.76rem;
-    font-weight: 600;
-    padding: 6px 16px;
+    background: rgba(168, 85, 247, 0.18);
+    border: 1px solid rgba(168, 85, 247, 0.45);
+    color: #e9d5ff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 18px;
     border-radius: 9999px;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
 }
 
 .hero-card {
-    background: rgba(19, 27, 46, 0.75);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    padding: 2.4rem 2rem 1.8rem 2rem;
+    background: linear-gradient(145deg, rgba(13, 20, 42, 0.82) 0%, rgba(20, 16, 52, 0.78) 100%);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-radius: 26px;
+    padding: 2.6rem 2.2rem 2rem 2.2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 45px rgba(79, 70, 229, 0.15);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 50px rgba(56, 189, 248, 0.2);
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -196,167 +198,172 @@ header[data-testid="stHeader"] {
     content: "";
     position: absolute;
     top: 0;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #6366f1, #06b6d4, #a855f7, transparent);
+    left: 5%;
+    right: 5%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #06b6d4, #38bdf8, #818cf8, #c084fc, #ec4899, transparent);
 }
 
 .hero-main-title {
-    font-size: 3rem;
-    font-weight: 800;
-    line-height: 1.15;
+    font-size: 3.2rem;
+    font-weight: 900;
+    line-height: 1.12;
     margin: 0.4rem 0 0.5rem 0;
-    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 35%, #818cf8 70%, #38bdf8 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 30%, #38bdf8 65%, #c084fc 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 20px rgba(56, 189, 248, 0.35));
 }
 
 .hero-description {
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: #e2e8f0;
     margin-bottom: 0.4rem;
 }
 
 .college-institution-title {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    font-size: 1.42rem;
-    font-weight: 800;
+    font-size: 1.48rem;
+    font-weight: 900;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #ffffff 10%, #38bdf8 55%, #818cf8 100%);
+    background: linear-gradient(135deg, #ffffff 5%, #38bdf8 50%, #a855f7 90%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin: 0.4rem 0 0.6rem 0;
-    filter: drop-shadow(0 2px 12px rgba(56, 189, 248, 0.3));
+    filter: drop-shadow(0 2px 14px rgba(56, 189, 248, 0.4));
 }
 
 .kgp-college-badge {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
     font-weight: 800 !important;
     letter-spacing: 0.03em;
-    background: linear-gradient(135deg, #ffffff 10%, #38bdf8 60%, #818cf8 100%);
+    background: linear-gradient(135deg, #ffffff 10%, #38bdf8 55%, #c084fc 100%);
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     display: inline;
 }
 
 .hero-subtext {
-    font-size: 0.94rem;
+    font-size: 0.98rem;
     color: #94a3b8;
     max-width: 760px;
     margin: 0 auto 1.6rem auto;
-    line-height: 1.6;
+    line-height: 1.65;
 }
 
 /* Statistics Strip */
 .stats-strip {
     display: flex;
     justify-content: center;
-    gap: 18px;
-    max-width: 520px;
-    margin: 1.5rem auto 0 auto;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 20px;
+    max-width: 540px;
+    margin: 1.6rem auto 0 auto;
+    padding-top: 1.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stat-box {
     flex: 1;
     min-width: 150px;
-    background: rgba(11, 15, 25, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(8, 14, 30, 0.75) 0%, rgba(18, 15, 42, 0.7) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 18px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .stat-box:hover {
-    transform: translateY(-2px);
-    border-color: rgba(99, 102, 241, 0.45);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+    transform: translateY(-3px);
+    border-color: #38bdf8;
+    box-shadow: 0 10px 28px rgba(6, 182, 212, 0.35);
 }
 
 .stat-num {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.45rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+    font-size: 1.6rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 60%, #c084fc 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .stat-label {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-top: 3px;
-    font-weight: 600;
+    letter-spacing: 0.07em;
+    margin-top: 4px;
+    font-weight: 700;
 }
 
 /* ==============================================================================
    AUTHENTICATION FORM STYLING
    ============================================================================== */
 [data-testid="stForm"] {
-    background: rgba(19, 27, 46, 0.85) !important;
-    border: 1px solid rgba(99, 102, 241, 0.35) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    border-radius: 22px !important;
-    padding: 2.2rem !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 35px rgba(99, 102, 241, 0.15) !important;
+    background: linear-gradient(145deg, rgba(14, 22, 46, 0.9) 0%, rgba(22, 18, 54, 0.88) 100%) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.4) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    border-radius: 24px !important;
+    padding: 2.4rem !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(56, 189, 248, 0.2) !important;
 }
 
 [data-testid="stForm"] h2 {
     color: #ffffff !important;
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
     margin-bottom: 1.2rem !important;
     text-align: center;
+    background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-/* Form Inputs (Scoped to avoid overriding BaseWeb selectbox internal inputs) */
+/* Form Inputs */
 [data-testid="stForm"] input[type="text"],
 [data-testid="stForm"] input[type="password"],
 [data-testid="stTextInput"] input {
-    background: #090e1c !important;
-    border: 1px solid rgba(56, 189, 248, 0.25) !important;
-    border-radius: 12px !important;
+    background: #080d1e !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.3) !important;
+    border-radius: 14px !important;
     color: #f8fafc !important;
-    font-size: 0.95rem !important;
-    padding: 0.72rem 1rem !important;
-    transition: all 0.2s ease !important;
+    font-size: 0.98rem !important;
+    padding: 0.76rem 1.1rem !important;
+    transition: all 0.22s ease !important;
 }
 
 [data-testid="stForm"] input[type="text"]:focus,
 [data-testid="stForm"] input[type="password"]:focus,
 [data-testid="stTextInput"] input:focus {
     border-color: #38bdf8 !important;
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
-    background: #0e172e !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35) !important;
+    background: #0d1630 !important;
 }
 
-/* Buttons */
+/* Primary Action Buttons */
 .stButton > button, [data-testid="stForm"] button[kind="secondaryFormSubmit"], button[kind="primary"] {
-    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%) !important;
+    background: linear-gradient(135deg, #0284c7 0%, #06b6d4 40%, #6366f1 100%) !important;
     color: #ffffff !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-    padding: 0.68rem 1.6rem !important;
-    font-size: 0.95rem !important;
-    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 14px !important;
+    font-weight: 800 !important;
+    padding: 0.72rem 1.8rem !important;
+    font-size: 0.98rem !important;
+    box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45) !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     letter-spacing: 0.02em;
 }
 
 .stButton > button:hover, [data-testid="stForm"] button[kind="secondaryFormSubmit"]:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 28px rgba(6, 182, 212, 0.55), 0 0 20px rgba(59, 130, 246, 0.35) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 10px 32px rgba(6, 182, 212, 0.65), 0 0 25px rgba(99, 102, 241, 0.4) !important;
     filter: brightness(1.15);
 }
 
@@ -364,54 +371,54 @@ header[data-testid="stHeader"] {
    SIDEBAR CUSTOMIZATION & CONTROL SUITE
    ============================================================================== */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #070c1a 0%, #0b1328 45%, #121034 100%) !important;
-    border-right: 1px solid rgba(56, 189, 248, 0.22) !important;
-    box-shadow: 6px 0 30px rgba(0, 0, 0, 0.5) !important;
+    background: linear-gradient(180deg, #050813 0%, #0a1024 45%, #120d2e 100%) !important;
+    border-right: 1px solid rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 8px 0 35px rgba(0, 0, 0, 0.6) !important;
 }
 
 .sidebar-badge {
     display: inline-block;
-    background: rgba(56, 189, 248, 0.15);
-    border: 1px solid rgba(56, 189, 248, 0.35);
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.45);
     color: #7dd3fc;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 9999px;
     margin-bottom: 4px;
 }
 
 .sidebar-card {
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(56, 189, 248, 0.18);
-    border-radius: 14px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(16px);
 }
 
 /* ==============================================================================
-   SELECTBOX & DROPDOWN - STUCK-FREE, SMOOTH, & HIGH-CONTRAST
+   SELECTBOX & DROPDOWN - HIGH CONTRAST & SLEEK
    ============================================================================== */
 div[data-baseweb="select"] {
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     cursor: pointer !important;
 }
 
 div[data-baseweb="select"] > div {
-    background: linear-gradient(145deg, rgba(14, 22, 44, 0.95) 0%, rgba(18, 28, 56, 0.9) 100%) !important;
-    border: 1px solid rgba(56, 189, 248, 0.4) !important;
-    border-radius: 12px !important;
+    background: linear-gradient(145deg, rgba(12, 20, 42, 0.95) 0%, rgba(18, 26, 56, 0.92) 100%) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+    border-radius: 14px !important;
     color: #ffffff !important;
-    min-height: 46px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+    min-height: 48px !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4) !important;
     transition: all 0.22s ease !important;
     cursor: pointer !important;
 }
 
 div[data-baseweb="select"] > div:hover {
     border-color: #38bdf8 !important;
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.32) !important;
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.4) !important;
     transform: translateY(-1px);
 }
 
@@ -426,22 +433,22 @@ div[data-baseweb="popover"] {
 
 div[data-baseweb="popover"] > div,
 ul[role="listbox"] {
-    background: rgba(10, 17, 34, 0.97) !important;
-    border: 1px solid rgba(56, 189, 248, 0.45) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 189, 248, 0.22) !important;
-    backdrop-filter: blur(28px) !important;
-    -webkit-backdrop-filter: blur(28px) !important;
-    padding: 6px !important;
+    background: rgba(8, 14, 30, 0.98) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.5) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(56, 189, 248, 0.3) !important;
+    backdrop-filter: blur(30px) !important;
+    -webkit-backdrop-filter: blur(30px) !important;
+    padding: 8px !important;
 }
 
 li[role="option"] {
     color: #cbd5e1 !important;
     background: transparent !important;
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
-    padding: 11px 15px !important;
-    border-radius: 9px !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    padding: 12px 16px !important;
+    border-radius: 10px !important;
     margin: 3px 2px !important;
     transition: all 0.16s ease !important;
     cursor: pointer !important;
@@ -449,11 +456,11 @@ li[role="option"] {
 
 li[role="option"]:hover,
 li[role="option"][aria-selected="true"] {
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.28) 0%, rgba(99, 102, 241, 0.24) 100%) !important;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.32) 0%, rgba(99, 102, 241, 0.28) 100%) !important;
     color: #ffffff !important;
-    font-weight: 700 !important;
-    border: 1px solid rgba(56, 189, 248, 0.45) !important;
-    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.2) !important;
+    font-weight: 800 !important;
+    border: 1px solid rgba(56, 189, 248, 0.55) !important;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25) !important;
 }
 
 /* Operational Mode Radio Buttons */
@@ -497,54 +504,59 @@ div[data-testid="stRadio"] label span {
    CHAT INTERFACE & MESSAGES - RADIANT FROSTED GLASS
    ============================================================================== */
 [data-testid="stChatMessage"] {
-    background: rgba(12, 19, 36, 0.78) !important;
-    border: 1px solid rgba(56, 189, 248, 0.2) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border-radius: 20px !important;
-    padding: 1.3rem 1.6rem !important;
-    margin-bottom: 1.1rem !important;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45) !important;
-    transition: all 0.25s ease;
+    background: linear-gradient(145deg, rgba(10, 16, 36, 0.85) 0%, rgba(16, 22, 48, 0.8) 100%) !important;
+    border: 1px solid rgba(56, 189, 248, 0.28) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-radius: 22px !important;
+    padding: 1.4rem 1.8rem !important;
+    margin-bottom: 1.2rem !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.08) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-testid="stChatMessage"]:hover {
-    border-color: rgba(56, 189, 248, 0.45) !important;
-    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.55), 0 0 25px rgba(56, 189, 248, 0.2) !important;
+    border-color: rgba(56, 189, 248, 0.55) !important;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.65), 0 0 30px rgba(56, 189, 248, 0.25) !important;
+    transform: translateY(-1px);
 }
 
-/* Assistant message distinctive border */
+/* Assistant message distinctive glowing border */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
-    background: linear-gradient(135deg, rgba(11, 18, 36, 0.9) 0%, rgba(16, 26, 54, 0.84) 100%) !important;
-    border-left: 4px solid #38bdf8 !important;
+    background: linear-gradient(140deg, rgba(8, 16, 38, 0.94) 0%, rgba(14, 26, 58, 0.88) 100%) !important;
+    border-left: 5px solid #06b6d4 !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), inset 4px 0 20px rgba(6, 182, 212, 0.2) !important;
 }
 
-/* User message distinctive border */
+/* User message distinctive glowing border */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-    background: linear-gradient(135deg, rgba(26, 20, 56, 0.82) 0%, rgba(13, 20, 38, 0.86) 100%) !important;
-    border-left: 4px solid #a855f7 !important;
+    background: linear-gradient(140deg, rgba(36, 16, 64, 0.9) 0%, rgba(20, 14, 46, 0.92) 100%) !important;
+    border-left: 5px solid #c084fc !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), inset 4px 0 20px rgba(192, 132, 252, 0.2) !important;
 }
 
 /* Bottom Sticky Bar Container (Mobile & Desktop fix) */
 [data-testid="stBottom"],
 [data-testid="stBottomBlockContainer"],
 .stChatFloatingInputContainer {
-    background: rgba(7, 11, 20, 0.94) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
+    background: linear-gradient(180deg, transparent 0%, rgba(4, 7, 18, 0.92) 30%, rgba(4, 7, 18, 0.98) 100%) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
 }
 
 /* Chat Input Bar & Placeholder */
 [data-testid="stChatInput"] {
-    border-radius: 20px !important;
-    background: #0d1527 !important;
-    border: 1.5px solid rgba(56, 189, 248, 0.5) !important;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 25px rgba(56, 189, 248, 0.2) !important;
+    border-radius: 22px !important;
+    background: linear-gradient(145deg, #091024 0%, #0e1734 100%) !important;
+    border: 2px solid rgba(56, 189, 248, 0.55) !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.25) !important;
+    transition: all 0.25s ease !important;
 }
 
 [data-testid="stChatInput"]:focus-within {
     border-color: #38bdf8 !important;
-    box-shadow: 0 14px 45px rgba(0, 0, 0, 0.75), 0 0 32px rgba(56, 189, 248, 0.45) !important;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.5) !important;
+    transform: translateY(-1px);
 }
 
 [data-testid="stChatInput"] > div {
