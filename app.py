@@ -730,8 +730,38 @@ CUSTOM_CSS = CUSTOM_CSS.replace("__BG_STYLE__", APP_BG_STYLE)
 
 
 # ==============================================================================
-# DOCUMENT ACCESS & STATIC SERVING HELPERS
+# DOCUMENT ACCESS & RESILIENT DOWNLOAD HELPERS
 # ==============================================================================
+def resolve_document_file_path(source_filename: str, manifest: dict = None) -> Optional[str]:
+    """
+    Resolves the physical document file path across local and cloud environments
+    (Windows/Linux paths, case-insensitivity, and alias matching).
+    """
+    if not source_filename or source_filename == "Unknown Document":
+        return None
+
+    data_root = os.path.abspath(os.path.join(PROJECT_ROOT, "data"))
+    if not os.path.exists(data_root):
+        return None
+
+    clean_name = os.path.basename(source_filename).strip().lower()
+    
+    # 1. Search data/ recursively
+    for root, _, files in os.walk(data_root):
+        for f in files:
+            f_lower = f.lower()
+            if f_lower == clean_name:
+                return os.path.join(root, f)
+            # Handle Orders.pdf <-> Orders_11zon.pdf alias
+            if clean_name in ("orders.pdf", "orders_11zon.pdf") and f_lower in ("orders.pdf", "orders_11zon.pdf"):
+                return os.path.join(root, f)
+            # Match basename without extension
+            if os.path.splitext(f_lower)[0] == os.path.splitext(clean_name)[0]:
+                return os.path.join(root, f)
+
+    return None
+
+
 def get_document_url_and_path(source_filename: str, manifest: dict = None):
     """
     Resolves the local file path and web-accessible static serving URL for an indexed document.
@@ -740,26 +770,12 @@ def get_document_url_and_path(source_filename: str, manifest: dict = None):
     if not source_filename or source_filename == "Unknown Document":
         return None, None
 
-    file_path = None
-    if manifest and isinstance(manifest, dict) and "indexed_files" in manifest:
-        file_info = manifest["indexed_files"].get(source_filename)
-        if file_info and isinstance(file_info, dict):
-            file_path = file_info.get("file_path")
-
-    data_root = os.path.abspath(os.path.join(PROJECT_ROOT, "data"))
-
-    # If not in manifest directly or path moved, search data directory recursively
-    if not file_path or not os.path.exists(file_path):
-        if os.path.exists(data_root):
-            for root, _, files in os.walk(data_root):
-                if source_filename in files:
-                    file_path = os.path.join(root, source_filename)
-                    break
-
+    file_path = resolve_document_file_path(source_filename, manifest)
     if not file_path or not os.path.exists(file_path):
         return None, None
 
     try:
+        data_root = os.path.abspath(os.path.join(PROJECT_ROOT, "data"))
         rel_path = os.path.relpath(file_path, data_root)
         clean_rel = rel_path.replace(os.sep, "/")
         encoded_parts = [urllib.parse.quote(part) for part in clean_rel.split("/")]
@@ -772,20 +788,19 @@ def get_document_url_and_path(source_filename: str, manifest: dict = None):
 
 def get_document_download_info(source_filename: str, page_num: int = None, manifest: dict = None):
     """
-    Resolves the download URL and filename for an indexed document.
-    For multi-page PDFs with a specified page_num, extracts ONLY that particular order page
-    so the user downloads a lightweight single-page PDF instead of the massive complete file.
-    Returns (download_url, download_filename, is_single_page).
+    Resolves the download URL, extracted path, and filename for an indexed document.
+    For multi-page PDFs with a specified page_num, extracts ONLY that particular order page.
+    Returns (download_url, download_filename, is_single_page, actual_file_path).
     """
     if not source_filename or source_filename == "Unknown Document":
-        return None, None, False
+        return None, None, False, None
 
-    doc_url, file_path = get_document_url_and_path(source_filename, manifest)
+    file_path = resolve_document_file_path(source_filename, manifest)
     if not file_path or not os.path.exists(file_path):
-        return None, None, False
+        return None, None, False, None
 
     # Check if document is a PDF and a specific page is cited
-    is_pdf = source_filename.lower().endswith(".pdf")
+    is_pdf = source_filename.lower().endswith(".pdf") or file_path.lower().endswith(".pdf")
     if is_pdf and page_num and page_num > 0:
         extracted_dir = os.path.join(PROJECT_ROOT, "static", "extracted_pages")
         os.makedirs(extracted_dir, exist_ok=True)
@@ -808,10 +823,10 @@ def get_document_download_info(source_filename: str, page_num: int = None, manif
 
         if os.path.exists(page_filepath):
             page_url = f"app/static/extracted_pages/{urllib.parse.quote(page_filename)}"
-            return page_url, page_filename, True
+            return page_url, page_filename, True, page_filepath
 
-    # Standalone document (e.g. DOCX or single-page file)
-    return doc_url, source_filename, False
+    doc_url, _ = get_document_url_and_path(source_filename, manifest)
+    return doc_url, os.path.basename(file_path), False, file_path
 
 
 def linkify_answer_citations(answer_text: str, manifest: dict = None) -> str:
@@ -830,7 +845,7 @@ def linkify_answer_citations(answer_text: str, manifest: dict = None) -> str:
         page_num = int(page_num_str) if page_num_str and page_num_str.isdigit() else 1
         page_suffix = f", Page {page_num}" if page_num_str else ""
 
-        dl_url, dl_filename, is_page = get_document_download_info(doc_name, page_num, manifest)
+        dl_url, dl_filename, is_page, _ = get_document_download_info(doc_name, page_num, manifest)
         if dl_url:
             badge_title = f"Click to download Page {page_num} of {doc_name}" if is_page else f"Click to download {doc_name}"
             return (
@@ -856,60 +871,60 @@ def linkify_answer_citations(answer_text: str, manifest: dict = None) -> str:
 
 def render_citations_and_links(sources: list, manifest: dict, key_prefix: str = "src"):
     """
-    Renders structured citations with direct single-click download links.
-    For multi-page PDFs, downloads specifically that single cited order page.
+    Renders structured citations with guaranteed Streamlit native download buttons
+    and direct single-click extracted PDF page download links.
     """
     if not sources:
         return
 
-    with st.expander(f"📚 Source Citations ({len(sources)} documents)", expanded=False):
+    with st.expander(f"📚 Source Citations & Download Official Files ({len(sources)} documents)", expanded=True):
         for idx, src in enumerate(sources):
             src_name = src.get("source", "Unknown Document")
             page_num = src.get("page", 1)
             rerank_score = src.get("rerank_score")
             score_text = f" | Rerank Score: `{rerank_score}`" if rerank_score is not None else ""
 
-            dl_url, dl_filename, is_page = get_document_download_info(src_name, page_num, manifest)
-            if dl_url:
-                badge_label = f"📥 Download Page {page_num}" if is_page else "📥 Download Order"
-                title_html = (
-                    f'<a href="{dl_url}" download="{dl_filename}" target="_blank" class="doc-download-link" title="Click to download {dl_filename}">'
-                    f'📄 {src_name}'
-                    f'<span class="doc-download-badge">{badge_label}</span>'
-                    f'</a>'
+            dl_url, dl_filename, is_page, actual_path = get_document_download_info(src_name, page_num, manifest)
+
+            col_info, col_btn = st.columns([3, 1])
+            with col_info:
+                st.markdown(
+                    f"""
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #38bdf8;">
+                        📄 {src_name}
+                        <span style="color: #94a3b8; font-size: 0.82rem; font-weight: 500;"> (Page {page_num})</span>
+                        <span style="color: #34d399; font-size: 0.76rem; font-weight: 600;">{score_text}</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
-            else:
-                title_html = f'<span style="font-weight: 700; color: #38bdf8;">📄 {src_name}</span>'
+                if src.get("excerpt"):
+                    st.caption(f"_{src.get('excerpt')[:250]}..._")
 
-            # If an extracted single page, also provide subtle link to full original PDF
-            full_pdf_link = ""
-            if is_page:
-                full_url, _ = get_document_url_and_path(src_name, manifest)
-                if full_url:
-                    full_pdf_link = f' <a href="{full_url}" download="{src_name}" target="_blank" style="font-size: 0.75rem; color: #64748b; text-decoration: underline; margin-left: 6px;" title="Download complete {src_name}">(Complete PDF)</a>'
-
-            st.markdown(
-                f"""
-                <div style="font-size: 0.95rem; margin-bottom: 3px;">
-                    {title_html}
-                    <span style="color: #94a3b8; font-size: 0.82rem; font-weight: 500;"> (Page {page_num})</span>
-                    <span style="color: #34d399; font-size: 0.76rem; font-weight: 600;">{score_text}</span>
-                    {full_pdf_link}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-            st.caption(f"_{src.get('excerpt', '')}_")
+            with col_btn:
+                if actual_path and os.path.exists(actual_path):
+                    try:
+                        with open(actual_path, "rb") as f_doc:
+                            file_bytes = f_doc.read()
+                        mime_type = "application/pdf" if dl_filename.endswith(".pdf") else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        btn_label = f"📥 Page {page_num}" if is_page else "📥 Download"
+                        st.download_button(
+                            label=btn_label,
+                            data=file_bytes,
+                            file_name=dl_filename,
+                            mime=mime_type,
+                            key=f"dl_{key_prefix}_{idx}_{page_num}",
+                            use_container_width=True
+                        )
+                    except Exception as ex:
+                        logger.warning(f"Could not prepare download for {actual_path}: {ex}")
+                elif dl_url:
+                    st.markdown(f'<a href="{dl_url}" download="{dl_filename}" target="_blank" class="doc-download-badge">📥 Download</a>', unsafe_allow_html=True)
 
             if idx < len(sources) - 1:
                 st.markdown("<hr style='margin: 8px 0; border: none; border-top: 1px solid rgba(255,255,255,0.07);'>", unsafe_allow_html=True)
 
-        st.markdown(
-            "<div style='margin-top: 10px; font-size: 0.78rem; color: #94a3b8;'>"
-            "💡 <em>Click any document title or badge to download that exact order page directly as a single-page PDF or document.</em>"
-            "</div>",
-            unsafe_allow_html=True
-        )
+        st.caption("💡 _Click any download button to retrieve that exact cited order page or document directly to your device._")
 
 
 # ==============================================================================
