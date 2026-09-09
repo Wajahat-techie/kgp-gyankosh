@@ -10,9 +10,11 @@ Enforces strict hallucination mitigation and structured source citations.
 import os
 import logging
 from typing import List, Dict, Any, Optional
+from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_core.messages import SystemMessage, HumanMessage
 
+load_dotenv()
 logger = logging.getLogger("kgp_gyankosh.llm")
 
 # System prompt engineered for strict administrative grounding & hallucination prevention

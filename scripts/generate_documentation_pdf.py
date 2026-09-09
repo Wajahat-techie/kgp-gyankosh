@@ -7,6 +7,14 @@ Embeds high-resolution visual flowcharts for Stage 1 and Stage 2 architectures.
 
 import os
 import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -59,11 +67,12 @@ class NumberedCanvas(canvas.Canvas):
 
 def build_pdf(filename="KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf"):
     # Ensure diagrams are freshly generated
-    diag1_path = os.path.join("static", "diagram_stage1_indexing.png")
-    diag2_path = os.path.join("static", "diagram_stage2_retrieval.png")
+    diag1_path = os.path.join(PROJECT_ROOT, "static", "diagram_stage1_indexing.png")
+    diag2_path = os.path.join(PROJECT_ROOT, "static", "diagram_stage2_retrieval.png")
     create_diagrams.generate_stage1_diagram(diag1_path)
     create_diagrams.generate_stage2_diagram(diag2_path)
 
+    os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
     doc = SimpleDocTemplate(
         filename,
         pagesize=letter,
@@ -461,7 +470,8 @@ def build_pdf(filename="KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf
     print(f"Successfully generated documentation PDF: {filename} ({os.path.getsize(filename):,} bytes)")
 
 if __name__ == "__main__":
-    out_pdf = "KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf"
+    out_pdf = os.path.join(PROJECT_ROOT, "docs", "reports", "KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf")
     if len(sys.argv) > 1:
         out_pdf = sys.argv[1]
     build_pdf(out_pdf)
+

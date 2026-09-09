@@ -6,6 +6,14 @@ of the entire KGP Gyankosh codebase into an authoritative, publication-ready PDF
 
 import os
 import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -468,10 +476,10 @@ def build_pdf(filename="KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"):
         "<code>streamlit run app.py</code><br/><br/>"
         "<b>2. Rebuild offline document index from data/:</b><br/>"
         "<code>python build_index.py</code><br/><br/>"
-        "<b>3. Run automated retrieval test harness:</b><br/>"
-        "<code>python scratch_test_queries.py</code><br/><br/>"
+        "<b>3. Run automated retrieval test suite:</b><br/>"
+        "<code>pytest tests/</code><br/><br/>"
         "<b>4. Re-compile this technical documentation PDF:</b><br/>"
-        "<code>python generate_line_by_line_doc_pdf.py</code>",
+        "<code>python scripts/generate_line_by_line_doc_pdf.py</code>",
         style_body
     ))
 
@@ -481,7 +489,7 @@ def build_pdf(filename="KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"):
 
 
 if __name__ == "__main__":
-    out_file = "KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"
+    out_file = os.path.join(PROJECT_ROOT, "docs", "reports", "KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf")
     if len(sys.argv) > 1:
         out_file = sys.argv[1]
     build_pdf(out_file)

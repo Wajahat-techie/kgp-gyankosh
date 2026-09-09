@@ -101,12 +101,27 @@ class ConversationMemory:
         )
 
         try:
-            standalone_query = llm_client.generate_raw(reformulation_prompt).strip()
-            # Clean up any surrounding quotes or boilerplate
-            standalone_query = standalone_query.strip('"\'- \n')
-            if standalone_query:
-                logger.info(f"Query reformulated: '{current_query}' -> '{standalone_query}'")
-                return standalone_query
+            standalone_query = None
+            if hasattr(llm_client, "generate_raw") and callable(getattr(llm_client, "generate_raw")):
+                raw_res = llm_client.generate_raw(reformulation_prompt)
+                if isinstance(raw_res, str):
+                    standalone_query = raw_res
+
+            if standalone_query is None and hasattr(llm_client, "_llm") and hasattr(llm_client._llm, "invoke"):
+                from langchain_core.messages import HumanMessage
+                resp = llm_client._llm.invoke([HumanMessage(content=reformulation_prompt)])
+                standalone_query = getattr(resp, "content", str(resp))
+            elif standalone_query is None and hasattr(llm_client, "invoke") and callable(getattr(llm_client, "invoke")):
+                from langchain_core.messages import HumanMessage
+                resp = llm_client.invoke([HumanMessage(content=reformulation_prompt)])
+                standalone_query = getattr(resp, "content", str(resp))
+
+            if standalone_query is not None:
+                # Clean up any surrounding quotes or boilerplate
+                standalone_query = str(standalone_query).strip('"\'- \n')
+                if standalone_query:
+                    logger.info(f"Query reformulated: '{current_query}' -> '{standalone_query}'")
+                    return standalone_query
         except Exception as exc:
             logger.warning(f"Query reformulation failed ({exc}). Falling back to original query.")
 

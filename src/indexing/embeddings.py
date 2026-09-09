@@ -36,6 +36,32 @@ def get_embeddings_model() -> Embeddings:
                 logger.error(f"Failed to initialize OpenAIEmbeddings: {exc}. Falling back to local.")
                 provider = "sentence-transformers"
 
+    elif provider in ("google", "gemini"):
+        api_key = os.getenv("GOOGLE_API_KEY", "").strip()
+        if not api_key:
+            logger.warning("GOOGLE_API_KEY is missing. Falling back to local sentence-transformers.")
+            provider = "sentence-transformers"
+        else:
+            model_name = os.getenv("GOOGLE_EMBEDDING_MODEL", "models/text-embedding-004")
+            logger.info(f"Initializing Google GenAI Embeddings with model: {model_name}")
+            try:
+                from langchain_google_genai import GoogleGenerativeAIEmbeddings
+                return GoogleGenerativeAIEmbeddings(model=model_name, google_api_key=api_key)
+            except Exception as exc:
+                logger.error(f"Failed to initialize GoogleGenerativeAIEmbeddings: {exc}. Falling back to local.")
+                provider = "sentence-transformers"
+
+    elif provider == "ollama":
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        model_name = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+        logger.info(f"Initializing Ollama Embeddings: {model_name} at {base_url}")
+        try:
+            from langchain_ollama import OllamaEmbeddings
+            return OllamaEmbeddings(model=model_name, base_url=base_url)
+        except Exception as exc:
+            logger.error(f"Failed to initialize OllamaEmbeddings: {exc}. Falling back to local.")
+            provider = "sentence-transformers"
+
     # Default: Local Sentence Transformers (direct, fast, offline)
     model_name = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
     logger.info(f"Initializing local SentenceTransformers embeddings: '{model_name}'")

@@ -5,7 +5,12 @@ using Pillow with TrueType fonts (Segoe UI / Arial).
 """
 
 import os
+import sys
 from PIL import Image, ImageDraw, ImageFont
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+STATIC_DIR = os.path.join(PROJECT_ROOT, "static")
 
 def get_font(name="segoeui.ttf", size=18, bold=False):
     font_file = "segoeuib.ttf" if bold else name
@@ -68,8 +73,10 @@ def draw_arrow(draw, start, end, color="#2563eb", width=3):
             draw.polygon([(x1 + 8, y1 - 6), (x1 + 8, y1 + 6), (x1 - 2, y1)], fill=color)
 
 
-def generate_stage1_diagram(output_path="static/diagram_stage1_indexing.png"):
+def generate_stage1_diagram(output_path=None):
     """Diagram 1: Offline Ingestion & Indexing Pipeline"""
+    if output_path is None:
+        output_path = os.path.join(STATIC_DIR, "diagram_stage1_indexing.png")
     w, h = 1500, 850
     img = Image.new("RGB", (w, h), color="#f8fafc")
     draw = ImageDraw.Draw(img)
@@ -217,8 +224,10 @@ def generate_stage1_diagram(output_path="static/diagram_stage1_indexing.png"):
     print(f"Generated Stage 1 diagram: {output_path}")
 
 
-def generate_stage2_diagram(output_path="static/diagram_stage2_retrieval.png"):
+def generate_stage2_diagram(output_path=None):
     """Diagram 2: Online Query & Retrieval Workflow"""
+    if output_path is None:
+        output_path = os.path.join(STATIC_DIR, "diagram_stage2_retrieval.png")
     w, h = 1500, 850
     img = Image.new("RGB", (w, h), color="#f8fafc")
     draw = ImageDraw.Draw(img)
@@ -342,8 +351,10 @@ def generate_stage2_diagram(output_path="static/diagram_stage2_retrieval.png"):
     print(f"Generated Stage 2 diagram: {output_path}")
 
 
-def generate_file_execution_flow_diagram(output_path="static/diagram_file_execution_flow.png"):
+def generate_file_execution_flow_diagram(output_path=None):
     """Diagram 3: File-by-File Execution Sequence Flowchart"""
+    if output_path is None:
+        output_path = os.path.join(STATIC_DIR, "diagram_file_execution_flow.png")
     w, h = 1500, 1220
     img = Image.new("RGB", (w, h), color="#f8fafc")
     draw = ImageDraw.Draw(img)
