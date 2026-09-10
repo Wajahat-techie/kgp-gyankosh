@@ -370,6 +370,10 @@ def initialize_system():
     manifest = load_manifest(manifest_path)
 
     reranker = DocumentReranker()
+    try:
+        reranker.preload()
+    except Exception as re_err:
+        logger.warning(f"Reranker preload deferred: {re_err}")
     default_provider = os.getenv("LLM_PROVIDER", "google").lower().strip()
     default_model = (
         os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite") if default_provider == "google"
@@ -709,6 +713,10 @@ def main():
         )
         return
 
+    # Sanitize history: remove any trailing orphaned user message from interrupted/cancelled runs
+    while st.session_state.chat_messages and st.session_state.chat_messages[-1].get("role") == "user":
+        st.session_state.chat_messages.pop()
+
     # Render previous conversation history
     for msg_idx, message in enumerate(st.session_state.chat_messages):
         with st.chat_message(message["role"]):
@@ -775,6 +783,10 @@ def main():
         else "🔍 Ask about college circulars, leave rules, notices, or admissions... [Press Enter]"
     )
     if prompt := st.chat_input(input_placeholder):
+        # Prevent any duplicate/orphaned user bubbles
+        while st.session_state.chat_messages and st.session_state.chat_messages[-1].get("role") == "user":
+            st.session_state.chat_messages.pop()
+
         # Display user query
         st.session_state.chat_messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -785,7 +797,7 @@ def main():
         with st.chat_message("assistant"):
             try:
                 if "General AI" in assistant_mode:
-                    with st.spinner("Thinking..."):
+                    with st.spinner("⚡ Formulating AI response..."):
                         history_prompt = st.session_state.memory.format_history_for_prompt()
                         result = llm_client.generate_chat(
                             query=prompt,
@@ -794,7 +806,7 @@ def main():
                         answer_text = result["answer"]
                         sources = []
                 else:
-                    with st.spinner("Thinking..."):
+                    with st.spinner("⚡ Searching verified college records & synthesizing answer..."):
                         # 1. Multi-turn Query Reformulation
                         reformulated_query = st.session_state.memory.reformulate_query(prompt, llm_client)
 
