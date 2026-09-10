@@ -739,3 +739,167 @@ iframe[title*="html"] {
     color: #ffffff;
     transform: translateY(-1px);
 }
+
+/* ==============================================================================
+   OFFICIAL GOVERNMENT INSTITUTIONAL DESIGN SYSTEM
+   ============================================================================== */
+.official-gov-banner {
+    background: linear-gradient(135deg, rgba(8, 15, 36, 0.95) 0%, rgba(15, 23, 50, 0.92) 50%, rgba(10, 20, 44, 0.96) 100%) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.4) !important;
+    border-top: 3px solid #38bdf8 !important;
+    border-radius: 18px !important;
+    padding: 1.2rem 1.6rem !important;
+    margin-bottom: 1.2rem !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.18) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+.official-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.official-crest-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.official-crest-icon {
+    font-size: 2.3rem;
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(56, 189, 248, 0.1) 100%);
+    border: 1.5px solid rgba(56, 189, 248, 0.5);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.official-dept-title {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #38bdf8;
+    margin-bottom: 2px;
+}
+
+.official-institution-name {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 1.45rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.official-sub-caption {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin-top: 3px;
+    font-weight: 500;
+}
+
+.official-status-pills {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.official-pill {
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.official-pill.verified {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1.5px solid rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.2);
+}
+
+.official-pill.records {
+    background: rgba(56, 189, 248, 0.15);
+    color: #7dd3fc;
+    border: 1.5px solid rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+}
+
+.official-pill.model {
+    background: rgba(168, 85, 247, 0.15);
+    color: #d8b4fe;
+    border: 1.5px solid rgba(168, 85, 247, 0.4);
+}
+
+/* Official Assistant Answer Verification Stamp */
+.official-answer-stamp {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, rgba(6, 182, 212, 0.15) 0%, rgba(15, 23, 42, 0.4) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-left: 4px solid #38bdf8;
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin-bottom: 12px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #7dd3fc;
+}
+
+/* Official Welcome Suggestion Deck */
+.official-welcome-deck {
+    background: linear-gradient(145deg, rgba(13, 22, 48, 0.88) 0%, rgba(19, 29, 62, 0.82) 100%);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    margin: 1.5rem auto 1.5rem auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(56, 189, 248, 0.15);
+}
+
+.official-welcome-title {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.01em;
+}
+
+.official-welcome-desc {
+    font-size: 0.92rem;
+    color: #cbd5e1;
+    line-height: 1.55;
+    margin-bottom: 1rem;
+}
+
+.official-chip-label {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #38bdf8;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+

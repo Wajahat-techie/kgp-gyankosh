@@ -659,47 +659,64 @@ def main():
 
     is_general_ai = ("General AI" in assistant_mode)
     active_mode_badge = (
-        '<span style="background: rgba(168, 85, 247, 0.16); color: #d8b4fe; font-size: 0.78rem; font-weight: 700; padding: 3px 12px; border-radius: 9999px; border: 1px solid rgba(168, 85, 247, 0.35);">🌐 Mode: General AI Chat</span>'
+        '<span style="background: rgba(168, 85, 247, 0.16); color: #d8b4fe; font-size: 0.78rem; font-weight: 700; padding: 4px 14px; border-radius: 9999px; border: 1.5px solid rgba(168, 85, 247, 0.4);">🌐 Mode: General AI Chat</span>'
         if is_general_ai
-        else '<span style="background: rgba(56, 189, 248, 0.16); color: #7dd3fc; font-size: 0.78rem; font-weight: 700; padding: 3px 12px; border-radius: 9999px; border: 1px solid rgba(56, 189, 248, 0.35);">🏛️ Mode: College Records (RAG)</span>'
+        else '<span style="background: rgba(56, 189, 248, 0.16); color: #7dd3fc; font-size: 0.78rem; font-weight: 700; padding: 4px 14px; border-radius: 9999px; border: 1.5px solid rgba(56, 189, 248, 0.4);">🏛️ Mode: College Records (RAG)</span>'
     )
-    active_model_badge = f'<span style="background: rgba(52, 211, 153, 0.16); color: #6ee7b7; font-size: 0.78rem; font-weight: 700; padding: 3px 12px; border-radius: 9999px; border: 1px solid rgba(52, 211, 153, 0.35);">🤖 Active Model: {selected_model_label}</span>'
+    active_model_badge = f'<span style="background: rgba(52, 211, 153, 0.16); color: #6ee7b7; font-size: 0.78rem; font-weight: 700; padding: 4px 14px; border-radius: 9999px; border: 1.5px solid rgba(52, 211, 153, 0.4);">🤖 Active Model: {selected_model_label}</span>'
     mode_description = (
-        f"Direct AI intelligence for drafting official notices, writing letters, explaining concepts, or general Q&A with <strong>{sel_model}</strong>."
+        f"Direct AI intelligence for drafting official notices, writing letters, explaining concepts, or general administrative writing with <strong>{sel_model}</strong>."
         if is_general_ai
-        else f"Institutional knowledge search grounded strictly in 1,162 official college notices & circulars with citations via <strong>{sel_model}</strong>."
+        else f"Institutional knowledge search grounded strictly in 1,162 official college notices & circulars with verified citations via <strong>{sel_model}</strong>."
+    )
+
+    answer_stamp = (
+        '<div class="official-answer-stamp"><span>🛡️ OFFICIAL VERIFIED RECORD</span><span>🏛️ KGP ARCHIVES GROUNDED</span></div>'
+        if not is_general_ai
+        else '<div class="official-answer-stamp" style="border-left-color: #c084fc; color: #d8b4fe;"><span>🌐 GENERAL AI RESPONSE</span><span>🤖 DIRECT LLM SYNTHESIS</span></div>'
     )
 
     if st.session_state.chat_messages:
         # Compact top header during active conversation so messages remain visible
         st.markdown(
             f"""
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; padding: 0.65rem 1.2rem; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 14px; backdrop-filter: blur(12px);">
-                <div style="font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800; text-transform: uppercase;">
-                    🏛️ <span style="background: linear-gradient(135deg, #ffffff 15%, #38bdf8 70%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">KASHMIR GOVERNMENT POLYTECHNIC COLLEGE</span>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    {active_mode_badge}
-                    {active_model_badge}
+            <div class="official-gov-banner" style="padding: 0.75rem 1.3rem; margin-bottom: 0.8rem;">
+                <div class="official-header-row">
+                    <div class="official-crest-group" style="gap: 10px;">
+                        <span style="font-size: 1.5rem;">🏛️</span>
+                        <div>
+                            <div style="font-size: 0.68rem; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.08em;">GOVERNMENT OF JAMMU & KASHMIR</div>
+                            <div style="font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 800; color: #ffffff; text-transform: uppercase;">KASHMIR GOVERNMENT POLYTECHNIC COLLEGE, SRINAGAR</div>
+                        </div>
+                    </div>
+                    <div class="official-status-pills">
+                        {active_mode_badge}
+                        {active_model_badge}
+                    </div>
                 </div>
             </div>
             """,
             unsafe_allow_html=True
         )
     else:
-        # Full banner when no conversation has started
+        # Prestigious official government banner when conversation starts
         st.markdown(
             f"""
-            <div style="margin-bottom: 1rem; padding: 1.1rem 1.4rem; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; backdrop-filter: blur(12px);">
-                <div style="font-family: 'Outfit', sans-serif; font-size: 1.45rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.3;">
-                    🏛️ <span style="background: linear-gradient(135deg, #ffffff 15%, #38bdf8 60%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">KASHMIR GOVERNMENT POLYTECHNIC COLLEGE, SRINAGAR</span>
-                </div>
-                <div style="font-size: 0.86rem; color: #cbd5e1; margin-top: 4px;">
-                    {mode_description}
-                </div>
-                <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap;">
-                    {active_mode_badge}
-                    {active_model_badge}
+            <div class="official-gov-banner">
+                <div class="official-header-row">
+                    <div class="official-crest-group">
+                        <div class="official-crest-icon">🏛️</div>
+                        <div>
+                            <div class="official-dept-title">GOVERNMENT OF JAMMU & KASHMIR • DEPARTMENT OF SKILL DEVELOPMENT</div>
+                            <h1 class="official-institution-name">KASHMIR GOVERNMENT POLYTECHNIC COLLEGE, SRINAGAR</h1>
+                            <div class="official-sub-caption">Gogji-Bagh, Srinagar (J&K) - 190008 • Established 1958 • Official Institutional Intelligence Portal</div>
+                        </div>
+                    </div>
+                    <div class="official-status-pills">
+                        <span class="official-pill verified">🛡️ ISO Records Grounded</span>
+                        <span class="official-pill records">📚 {len(indexed_files):,} Official Documents</span>
+                        {active_model_badge}
+                    </div>
                 </div>
             </div>
             """,
@@ -721,6 +738,7 @@ def main():
     for msg_idx, message in enumerate(st.session_state.chat_messages):
         with st.chat_message(message["role"]):
             if message["role"] == "assistant":
+                st.markdown(answer_stamp, unsafe_allow_html=True)
                 content_with_links = linkify_answer_citations(message["content"], manifest)
                 st.markdown(content_with_links, unsafe_allow_html=True)
                 if message.get("sources"):
@@ -762,19 +780,35 @@ def main():
     if st.session_state.chat_messages:
         scroll_to_bottom()
 
-    # Empty State Guidance
+    # Empty State Guidance & Interactive Suggestion Deck
+    preset_query = None
     if not st.session_state.chat_messages:
         st.markdown(
-            """
-            <div style="text-align: center; margin: 3.5rem auto 2rem auto; max-width: 600px;">
-                <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">💡</div>
-                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 700; background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">
-                    How can I assist you today?
-                </h2>
+            f"""
+            <div class="official-welcome-deck">
+                <div class="official-welcome-title">🏛️ Institutional Administrative Intelligence Assistant</div>
+                <div class="official-welcome-desc">
+                    Welcome to the official executive digital assistant of <strong>Kashmir Government Polytechnic College, Srinagar</strong>. 
+                    Ask questions grounded strictly across <strong>{len(indexed_files):,}</strong> authenticated circulars, administrative duty orders, leave policies, and exam rosters with verified single-click document downloads.
+                </div>
+                <div class="official-chip-label">
+                    ⚡ QUICK ADMINISTRATIVE QUERIES (CLICK TO RUN INSTANTLY):
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
+        col_q1, col_q2 = st.columns(2)
+        with col_q1:
+            if st.button("📜 What about Order No. 68?", use_container_width=True, key="quick_order_68"):
+                preset_query = "what about order 68"
+            if st.button("🏛️ Faculty Leave & Casual Leave Regulations", use_container_width=True, key="quick_leave_rules"):
+                preset_query = "What are the rules and guidelines for faculty casual leave and duty leave?"
+        with col_q2:
+            if st.button("📋 RE-NEET 2026 Examination Duty Briefing", use_container_width=True, key="quick_reneet"):
+                preset_query = "Details regarding briefing session for RE-NEET examination duties"
+            if st.button("✍️ Draft Official Notice for Faculty Meeting", use_container_width=True, key="quick_draft"):
+                preset_query = "Draft an official college notice for an upcoming departmental faculty meeting"
 
     # User input with mode-specific placeholder
     input_placeholder = (
@@ -782,7 +816,9 @@ def main():
         if is_general_ai
         else "🔍 Ask about college circulars, leave rules, notices, or admissions... [Press Enter]"
     )
-    if prompt := st.chat_input(input_placeholder):
+    user_input = st.chat_input(input_placeholder)
+    prompt = user_input or preset_query
+    if prompt:
         # Prevent any duplicate/orphaned user bubbles
         while st.session_state.chat_messages and st.session_state.chat_messages[-1].get("role") == "user":
             st.session_state.chat_messages.pop()
@@ -828,7 +864,8 @@ def main():
                         answer_text = result["answer"]
                         sources = result["sources"]
 
-                # Display final response with formatted citations
+                # Display final response with official verification stamp & formatted citations
+                st.markdown(answer_stamp, unsafe_allow_html=True)
                 content_with_links = linkify_answer_citations(answer_text, manifest)
                 st.markdown(content_with_links, unsafe_allow_html=True)
 
