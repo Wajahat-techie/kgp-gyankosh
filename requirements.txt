@@ -1,5 +1,9 @@
-# KGP Gyankosh - Requirements
+# KGP Gyankosh - Streamlit Cloud Optimized Requirements
 # Generative AI & Agentic AI Capstone Project: Enterprise Knowledge Assistant with Advanced RAG
+
+# Use CPU-only PyTorch to prevent container OOM and disk-exhaustion crashes on Streamlit Cloud (~180MB vs ~3GB CUDA)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2.0
 
 # Core RAG Framework & Orchestration
 langchain>=0.3.0,<1.4.0
@@ -7,33 +11,26 @@ langchain-core>=0.3.0,<1.5.0
 langchain-community>=0.3.0,<0.5.0
 langchain-text-splitters>=0.3.0,<1.2.0
 
-# LLM Providers (Switchable Local Ollama vs Cloud OpenAI/Google)
-langchain-ollama>=0.2.0
-ollama>=0.4.0
+# LLM Providers (Cloud API & Local)
 langchain-openai>=0.2.0
 openai>=1.50.0
 langchain-google-genai>=2.0.0
+langchain-ollama>=0.2.0
+ollama>=0.4.0
 
 # Dense Embeddings & Cross-Encoder Reranking
 sentence-transformers>=3.0.0
-torch>=2.2.0
 transformers>=4.40.0
 
-# Vector Database
+# Vector Database & Hybrid Search
 faiss-cpu>=1.8.0
-
-# Sparse Retrieval / Keyword Search
 rank-bm25>=0.2.2
 
-# Document Parsing & Loaders
+# Document Parsing & Loaders (Lightweight)
 pypdf>=4.0.0
 pdfplumber>=0.11.0
 python-docx>=1.1.0
 pillow>=10.0.0
-
-# OCR (Scanned Documents & Images)
-pytesseract>=0.3.10
-pdf2image>=1.17.0
 
 # Web Application UI & Secure Authentication
 streamlit>=1.38.0
