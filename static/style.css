@@ -901,15 +901,5 @@ iframe[title*="html"] {
     margin-bottom: 1rem;
 }
 
-.official-chip-label {
-    font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #38bdf8;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+
 

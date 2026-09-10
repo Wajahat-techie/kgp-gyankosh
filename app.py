@@ -767,8 +767,7 @@ def main():
     if st.session_state.chat_messages:
         scroll_to_bottom()
 
-    # Empty State Guidance & Interactive Suggestion Deck
-    preset_query = None
+    # Empty State Guidance
     if not st.session_state.chat_messages:
         st.markdown(
             f"""
@@ -778,24 +777,10 @@ def main():
                     Welcome to the official executive digital assistant of <strong>Kashmir Government Polytechnic College, Srinagar</strong>. 
                     Ask questions grounded strictly across <strong>{len(indexed_files):,}</strong> authenticated circulars, administrative duty orders, leave policies, and exam rosters with verified single-click document downloads.
                 </div>
-                <div class="official-chip-label">
-                    ⚡ QUICK ADMINISTRATIVE QUERIES (CLICK TO RUN INSTANTLY):
-                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
-        col_q1, col_q2 = st.columns(2)
-        with col_q1:
-            if st.button("📜 What about Order No. 68?", use_container_width=True, key="quick_order_68"):
-                preset_query = "what about order 68"
-            if st.button("🏛️ Faculty Leave & Casual Leave Regulations", use_container_width=True, key="quick_leave_rules"):
-                preset_query = "What are the rules and guidelines for faculty casual leave and duty leave?"
-        with col_q2:
-            if st.button("📋 RE-NEET 2026 Examination Duty Briefing", use_container_width=True, key="quick_reneet"):
-                preset_query = "Details regarding briefing session for RE-NEET examination duties"
-            if st.button("✍️ Draft Official Notice for Faculty Meeting", use_container_width=True, key="quick_draft"):
-                preset_query = "Draft an official college notice for an upcoming departmental faculty meeting"
 
     # User input with mode-specific placeholder
     input_placeholder = (
@@ -804,7 +789,7 @@ def main():
         else "🔍 Ask about college circulars, leave rules, notices, or admissions... [Press Enter]"
     )
     user_input = st.chat_input(input_placeholder)
-    prompt = user_input or preset_query
+    prompt = user_input
     if prompt:
         # Prevent any duplicate/orphaned user bubbles
         while st.session_state.chat_messages and st.session_state.chat_messages[-1].get("role") == "user":
