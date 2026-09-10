@@ -28,7 +28,7 @@ Traditional keyword search (e.g., Windows Search, Adobe PDF Search) fails on ins
 
 ### 🎯 Dual Operational Modes
 1. **🏛️ College Records (Strict RAG Mode)**:
-   - Queries are processed through the complete 2-stage retrieval pipeline across **1,162 official college documents** (8,166 searchable semantic clauses).
+   - Queries are processed through the complete 2-stage retrieval pipeline across **1,158 official college documents** (8,166 searchable semantic clauses).
    - **Zero Hallucination Rule**: If an answer cannot be proven from official documents, the system explicitly states: *"I could not find this information in the available official documents."*
    - **Source Citations**: Every fact, date, or policy cites the exact document title and page number (e.g., `[Orders.pdf, Page 14]`).
    - **Conversational Greetings**: Welcomes users warmly as the official college assistant when greeted with "Hi", "Hello", or "Who are you?".
@@ -55,7 +55,7 @@ Both modes (RAG and General AI) feature **independent, mode-specific LLM selecto
 
 ### 🔍 Two-Stage Hybrid Retrieval + Cross-Encoder Reranking
 1. **Sparse Keyword Search (BM25)**: Accurately retrieves exact administrative codes, order numbers (e.g., `Order No: 15 of 2026`), and officer names.
-2. **Dense Vector Search (FAISS + `all-MiniLM-L6-v2`)**: Understands conceptual semantic queries (e.g., *"allowance for school fees"* matches *"Child Education Allowance"*).
+2. **Dense Vector Search (FAISS + `all-MiniLM-L6-v2`)**: Understands conceptual semantic queries (e.g., *"allowance for school fees"* matches *"Child Education Allowance"*). Supports cloud Google GenAI embeddings (`text-embedding-004`) and OpenAI embeddings (`text-embedding-3-small`).
 3. **Reciprocal Rank Fusion (RRF)**: Merges sparse and dense ranked candidate lists fairly using rank reciprocals ($k=60$).
 4. **Deep Cross-Encoder Reranking (`ms-marco-MiniLM-L-6-v2`)**: Evaluates query-document pairs simultaneously using full cross-attention, eliminating false positives and delivering the top most relevant clauses to the LLM.
 
@@ -77,11 +77,31 @@ Both modes (RAG and General AI) feature **independent, mode-specific LLM selecto
 
 ---
 
-### 🎨 Modern Institutional Dark Glassmorphism UI
-- Styled specifically with institutional branding: **Kashmir Government Polytechnic College, Srinagar**.
-- Custom typography using Google Fonts (**Outfit** 800 Extra-Bold and **Plus Jakarta Sans**).
+### 🎨 Prestigious Government Institutional Dark Glassmorphism UI
+- Styled specifically with official government branding: **Government of Jammu & Kashmir · Kashmir Government Polytechnic College, Srinagar**.
+- Custom typography using Google Fonts (**Outfit** 800 Extra-Bold and **Plus Jakarta Sans**) via external CSS stylesheet (`static/style.css`).
 - Dynamic campus background atmosphere with deep scrim overlay.
-- Styled, interactive citation badges and on-demand document download selectors.
+- **Interactive Query Suggestion Chips**: Quick-click suggestion buttons for common administrative inquiries.
+- **Live Institutional Metric Badge**: Real-time counter displaying `1,158 Official Documents · 8,166 Clauses Live`.
+- **Responsive Document Download Cards**: Glowing cards linking directly to `static/docs/` so staff can open or download the original source PDF/Word circular.
+- **Sticky Query Bar**: Non-overlapping bottom search bar with smooth scroll padding.
+
+---
+
+### ☁️ Cloud Deployment & High-Availability Architecture
+- **Streamlit Community Cloud Deployment**: Hosted live at [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/).
+- **PyTorch CPU Build Optimization**: Configured `--extra-index-url https://download.pytorch.org/whl/cpu` to avoid downloading 3GB CUDA wheels, ensuring zero build memory/disk crashes.
+- **Pre-Built Ingestion Stores**: Production FAISS and BM25 databases pre-built and synchronized in Git (`output/`), eliminating cloud startup delays.
+- **Automated Keepalive Ping Workflow**: GitHub Actions workflow (`.github/workflows/keepalive.yaml`) runs automated health checks every 3 days to keep the cloud app permanently awake.
+
+---
+
+### 🧪 Automated Test Suite & Code Quality
+- Complete test suite (`tests/`) containing 26 automated unit and integration tests executed with `pytest`:
+  - `tests/test_chunker.py`: Validates text splitting, chunk counters, and metadata enrichment.
+  - `tests/test_embeddings.py`: Validates default SentenceTransformers and graceful API key fallbacks.
+  - `tests/test_memory.py`: Validates sliding turn memory and LLM query reformulation.
+  - `tests/test_retrieval.py`: Validates BM25 tokenization, RRF rank weighting, and Cross-Encoder reranking fallbacks.
 
 ---
 
@@ -150,50 +170,69 @@ Below is the complete inventory of all files and directories in the project with
 
 ```
 kgp-gyankosh/
-├── app.py
-├── build_index.py
-├── requirements.txt
-├── .env
-├── .env.example
-├── .gitignore
-├── README.md
-├── PROJECT_ARCHITECTURE_AND_FEATURES.md
-├── scratch_test_queries.py
+├── app.py                            # Streamlit web application & UI controller
+├── build_index.py                    # Stage 1: Batch offline indexing CLI
+├── requirements.txt                  # Python dependencies (CPU-optimized PyTorch)
+├── pytest.ini                        # Pytest configuration
+├── .env                              # Active environment configuration
+├── .env.example                      # Documented configuration template
+├── .gitignore                        # Git exclusion rules
+├── README.md                         # Capstone project report and user manual
+├── PROJECT_ARCHITECTURE_AND_FEATURES.md # Deep architectural inventory and codebase reference
+├── .github/
+│   └── workflows/
+│       └── keepalive.yaml            # Streamlit Cloud keepalive ping automation
 ├── config/
-│   ├── auth_config.yaml
-│   └── auth_config.yaml.example
+│   ├── auth_config.yaml              # Active bcrypt administrative credentials
+│   └── auth_config.yaml.example      # Template for authentication accounts
+├── data/
+│   ├── sample_notices/               # 7 representative administrative documents
+│   ├── pdf/                          # Official scanned and digital PDF circulars
+│   └── word/                         # Official Microsoft Word (.docx) circulars
 ├── src/
 │   ├── __init__.py
 │   ├── auth/
 │   │   ├── __init__.py
-│   │   └── authenticator.py
+│   │   └── authenticator.py          # Streamlit bcrypt authentication manager
 │   ├── ingestion/
 │   │   ├── __init__.py
-│   │   ├── chunker.py
-│   │   ├── document_loader.py
-│   │   └── ocr_loader.py
+│   │   ├── chunker.py                # Text splitting & metadata clause tagging
+│   │   ├── document_loader.py        # Multi-format document parser
+│   │   └── ocr_loader.py             # OCR engine with persistent disk cache
 │   ├── indexing/
 │   │   ├── __init__.py
-│   │   ├── embeddings.py
-│   │   └── vector_store.py
+│   │   ├── embeddings.py             # SentenceTransformers / Gemini / OpenAI embeddings
+│   │   └── vector_store.py           # FAISS & BM25 persistence with MD5 manifest
 │   ├── retrieval/
 │   │   ├── __init__.py
-│   │   ├── hybrid_search.py
-│   │   └── reranker.py
+│   │   ├── hybrid_search.py          # Vector + BM25 Reciprocal Rank Fusion
+│   │   └── reranker.py               # Cross-encoder reranking
 │   ├── memory/
 │   │   ├── __init__.py
-│   │   └── conversation_memory.py
+│   │   └── conversation_memory.py    # Multi-turn history & query reformulation
 │   └── llm/
 │       ├── __init__.py
-│       └── client.py
-├── output/
-│   ├── vector_store/
-│   ├── bm25_store/
-│   ├── ocr_cache/
-│   ├── index_logs/
-│   └── index_manifest.json
-└── static/
-    └── campus_bg.jpg
+│       └── client.py                 # Switchable Gemini / Ollama / OpenAI inference
+├── static/
+│   ├── style.css                     # Enterprise dark glassmorphism design system
+│   ├── campus_bg.jpg                 # Polytechnic campus visual background
+│   └── docs/                         # Static served documents for citation downloads
+├── tests/
+│   ├── test_chunker.py               # Unit tests for text chunking & metadata
+│   ├── test_embeddings.py            # Unit tests for embedding provider factory
+│   ├── test_memory.py                # Unit tests for conversation memory & reformulation
+│   └── test_retrieval.py             # Unit tests for BM25, RRF fusion, and CrossEncoder
+├── scripts/
+│   ├── test_queries.py               # Headless CLI test harness for query evaluation
+│   ├── create_diagrams.py            # Architectural diagram generator
+│   ├── generate_documentation_pdf.py # Project report PDF generator
+│   └── generate_line_by_line_doc_pdf.py # Codebase line-by-line documentation PDF generator
+└── output/
+    ├── vector_store/                 # Serialized FAISS index (index.faiss, index.pkl)
+    ├── bm25_store/                   # Serialized BM25 model & tokenized corpus
+    ├── ocr_cache/                    # Precomputed OCR text cache
+    ├── index_logs/                   # Execution logs per indexing run
+    └── index_manifest.json           # Index registry for 1,158 docs and 8,166 clauses
 ```
 
 ---
@@ -203,14 +242,17 @@ kgp-gyankosh/
 #### 1. [`app.py`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/app.py)
 * **Role**: Primary Streamlit web application entry point and user interface controller.
 * **Key Components**:
-  - **CSS Theme Engine**: Injects modern glassmorphism CSS, custom Google Fonts (`Outfit`, `Plus Jakarta Sans`), sleek scrollbars, and government institution badge styles.
+  - **Institutional Branding**: Government of Jammu & Kashmir insignia, institutional title header, and live metric badge (`1,158 Official Documents · 8,166 Clauses Live`).
+  - **CSS Theme Engine**: Links `static/style.css` injecting modern glassmorphism CSS, custom Google Fonts (`Outfit`, `Plus Jakarta Sans`), sleek scrollbars, and government institution badge styles.
   - **Authentication Gate**: Renders the login portal, credential cards, and verifies roles via `src/auth/authenticator.py`.
   - **Resource Caching**: Preloads FAISS vector index, BM25 keyword store, manifest metadata, and reranker once on startup via `@st.cache_resource` for zero query-time lag.
   - **Sidebar Controller**: Houses the **Operational Mode Switcher** (RAG vs General AI), **Active AI Model Dropdown**, User Profile badge, Logout button, and Indexed Documents browser.
+  - **Interactive Suggestions**: Quick-click suggestion chips for common polytechnic administrative queries (Attendance condonation, Lateral Entry admission, Fee structure, Student grievance redressal).
   - **Dynamic Chat Execution**:
     - If in *College Records (RAG)* mode: Triggers conversation query reformulation, hybrid retrieval, cross-encoder reranking, and grounded answer synthesis with citation badges.
     - If in *General AI* mode: Invokes `llm_client.generate_chat()` for direct conversational problem-solving and notice drafting.
-  - **Citations & Document Viewer**: Renders interactive source cards with Page numbers, Rerank relevance scores, and an on-demand document download selector.
+  - **Responsive Citation & Document Download Cards**: Renders interactive source cards with glowing icons linking directly to original files in `static/docs/` for one-click downloading.
+  - **Cloud Secrets Integration**: Automatically injects Streamlit Cloud secrets (`st.secrets`) into `os.environ` for zero-configuration cloud hosting.
 
 #### 2. [`build_index.py`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/build_index.py)
 * **Role**: Standalone offline ingestion and indexing pipeline script.
@@ -224,37 +266,50 @@ kgp-gyankosh/
   - Supports incremental delta indexing: skips already processed documents to save computation.
 
 #### 3. [`requirements.txt`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/requirements.txt)
-* **Role**: Complete Python dependency specification.
-* **Key Dependencies**:
+* **Role**: Complete Python dependency specification optimized for local and cloud environments.
+* **Key Optimizations & Dependencies**:
+  - `--extra-index-url https://download.pytorch.org/whl/cpu`: Pinned to the CPU-only PyTorch build (~180MB download vs. ~3GB CUDA wheel), eliminating container Out-Of-Memory and disk-exhaustion crash loops on Streamlit Community Cloud.
   - `langchain`, `langchain-core`, `langchain-community`: RAG orchestration primitives.
   - `langchain-ollama`, `ollama`: Offline local LLM connectivity for Llama 3.1.
   - `langchain-google-genai`: Cloud connectivity for Gemini 3.5 Flash.
   - `langchain-openai`: Cloud connectivity for OpenAI GPT-4o-mini.
-  - `sentence-transformers`, `torch`: Dense vector embedding generation (`all-MiniLM-L6-v2`).
+  - `sentence-transformers`, `torch`, `transformers`: Dense vector embedding generation (`all-MiniLM-L6-v2`) and cross-encoder reranking.
   - `faiss-cpu`: High-speed vector similarity search.
   - `rank-bm25`: BM25 Okapi keyword ranking algorithm.
   - `pdfplumber`, `pypdf`, `python-docx`: Document parsing engines.
-  - `pytesseract`, `pdf2image`, `pillow`: OCR pipeline for scanned records.
   - `streamlit`, `streamlit-authenticator`, `bcrypt`, `PyYAML`: UI and cryptographic authentication.
 
 #### 4. [`.env`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/.env) & [`.env.example`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/.env.example)
 * **Role**: Environment configuration file containing secret keys, file paths, model identifiers, and retrieval thresholds.
 * **Key Parameters**:
-  - `LLM_PROVIDER`: Master default switch (`ollama`, `google`, or `openai`).
+  - `LLM_PROVIDER`: Master default switch (`google`, `ollama`, or `openai`).
+  - `GOOGLE_API_KEY` & `GEMINI_MODEL`: Gemini API configuration (`gemini-3.5-flash-lite`).
   - `OLLAMA_MODEL` & `OLLAMA_BASE_URL`: Local model tag and endpoint (`llama3.1:latest`, `http://localhost:11434`).
-  - `GOOGLE_API_KEY` & `GEMINI_MODEL`: Gemini API configuration.
-  - `OPENAI_API_KEY` & `OPENAI_MODEL`: OpenAI API configuration.
+  - `OPENAI_API_KEY` & `OPENAI_MODEL`: OpenAI API configuration (`gpt-4o-mini`).
+  - `EMBEDDING_PROVIDER`: Selected embedding backend (`sentence-transformers`, `google`, or `openai`).
   - `EMBEDDING_MODEL_NAME`: Local embedding model (`all-MiniLM-L6-v2`).
   - `RERANKER_MODEL`: Cross-Encoder reranker (`cross-encoder/ms-marco-MiniLM-L-6-v2`).
   - `TOP_K_RETRIEVAL` & `TOP_N_RERANK`: Candidates retrieved (30) and reranked (6).
   - `DATA_DIR`, `VECTOR_STORE_DIR`, `BM25_STORE_DIR`: Persistent storage paths.
 
-#### 5. [`scratch_test_queries.py`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/scratch_test_queries.py)
-* **Role**: Command-line developer test harness.
+#### 5. [`scripts/test_queries.py`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/scripts/test_queries.py)
+* **Role**: Headless command-line developer test harness.
 * **Purpose**: Allows executing offline test queries against the indexed vector store and reranker without opening a web browser.
 
-#### 6. [`README.md`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/README.md)
-* **Role**: Comprehensive repository documentation and capstone project explanation.
+#### 6. [`pytest.ini`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/pytest.ini) & [`tests/`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/tests/)
+* **Role**: Complete automated testing harness with 26 unit and integration tests.
+* **Test Modules**:
+  - `tests/test_chunker.py`: Tests document chunking and metadata attribution.
+  - `tests/test_embeddings.py`: Tests embedding models and graceful fallbacks.
+  - `tests/test_memory.py`: Tests dialogue turn management and query reformulation.
+  - `tests/test_retrieval.py`: Tests tokenization, RRF scoring math, and CrossEncoder reranker.
+
+#### 7. [`.github/workflows/keepalive.yaml`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/.github/workflows/keepalive.yaml)
+* **Role**: Continuous keepalive cron automation for Streamlit Community Cloud.
+* **Purpose**: Pings the live cloud URL every 3 days to prevent cloud app idling and sleeping.
+
+#### 8. [`README.md`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/README.md)
+* **Role**: Comprehensive repository documentation, submission checklist, and capstone project explanation.
 
 ---
 
@@ -295,8 +350,8 @@ kgp-gyankosh/
 
 #### 🗄️ Indexing & Vector Database Layer (`src/indexing/`)
 * **[`src/indexing/embeddings.py`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/src/indexing/embeddings.py)**:
-  - Dense embedding factory. Instantiates local HuggingFace `all-MiniLM-L6-v2` (384 dimensions) or cloud OpenAI `text-embedding-3-small`.
-  - Runs embedding operations on local CPU or GPU using PyTorch without external network calls.
+  - Dense embedding factory. Instantiates local HuggingFace `all-MiniLM-L6-v2` (384 dimensions), Google GenAI `models/text-embedding-004`, or cloud OpenAI `text-embedding-3-small`.
+  - Runs embedding operations on local CPU using PyTorch without external network calls when using local models.
 * **[`src/indexing/vector_store.py`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/src/indexing/vector_store.py)**:
   - Encapsulates FAISS vector database initialization, serialization, and disk persistence.
   - Saves index binaries to `output/vector_store/index.faiss` and metadata to `output/vector_store/index.pkl`.
@@ -322,7 +377,7 @@ kgp-gyankosh/
 
 #### 🤖 LLM Client & Hallucination Mitigation Layer (`src/llm/`)
 * **[`src/llm/client.py`](file:///c:/Users/Electronics/Desktop/Capstone/kgp-gyankosh/src/llm/client.py)**:
-  - **`LLMClient` Class**: The unified inference engine supporting dynamic provider and model assignment (`ollama`, `google`, `openai`).
+  - **`LLMClient` Class**: The unified inference engine supporting dynamic provider and model assignment (`google`, `ollama`, `openai`).
   - **`ADMIN_SYSTEM_PROMPT`**: Strict administrative constitution enforcing:
     1. Grounding solely on provided passages.
     2. Zero hallucination guarantee.
@@ -340,7 +395,7 @@ kgp-gyankosh/
 * **`output/bm25_store/`**: Stores serialized BM25 Okapi model and tokenized document corpus dictionary.
 * **`output/ocr_cache/`**: JSON files caching extracted text of scanned pages, preventing redundant OCR re-computation.
 * **`output/index_logs/`**: Detailed execution logs of indexing runs recording throughput, document counts, and any parse warnings.
-* **`output/index_manifest.json`**: Index registry mapping all 1,162 files, their chunk counts, file paths, and metadata hashes.
+* **`output/index_manifest.json`**: Index registry mapping all 1,158 files, their 8,166 chunk clauses, file paths, and metadata hashes.
 
 ---
 

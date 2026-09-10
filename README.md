@@ -2,6 +2,13 @@
 ### Internal Administrative Intelligence System for Kashmir Government Polytechnic College, Srinagar
 *Capstone Project: IIT Patna — Generative AI & Agentic AI for Developers (Project 2: Enterprise Knowledge Assistant with Advanced RAG)*
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kgp-gyankosh.streamlit.app/)
+[![Tests](https://img.shields.io/badge/pytest-26%20passed-success)](tests/)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue)](requirements.txt)
+[![Official Records](https://img.shields.io/badge/records-1%2C158%20Docs%20%7C%208%2C166%20Clauses-green)](output/index_manifest.json)
+
+**🌐 Live Cloud Web Application**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
+
 ---
 
 ## 1. Executive Summary & Problem Statement
@@ -24,7 +31,7 @@ require manual searching through voluminous files. Furthermore, many official ci
 
 ## 2. High-Level Architecture
 
-KGP Gyankosh is built on a strict **Two-Stage Architecture**, completely separating offline document indexing from online query retrieval.
+KGP Gyankosh is built on a strict **Two-Stage Architecture**, completely separating offline document indexing from online query retrieval, with pre-built search stores for instant cloud and local execution:
 
 ```
 ==================================================================================================
@@ -138,12 +145,15 @@ KGP Gyankosh is built on a strict **Two-Stage Architecture**, completely separat
 | **RAG Framework** | LangChain (`langchain-core`, `langchain-community`) | Modular document representations, embeddings abstraction, and chat message flow. |
 | **Dense Vector Store** | **FAISS** (`faiss-cpu`) | High-performance in-memory vector index with instant local disk serialization; zero external server dependencies. |
 | **Sparse Keyword Search** | **BM25** (`rank_bm25`) | BM25Okapi algorithm provides exact keyword/code/acronym recall (e.g., `SBOTE`, `KGP/ADM/2026/104-A`). |
-| **Dense Embeddings** | `sentence-transformers` (`all-MiniLM-L6-v2`) | Local, zero-cost, 384-dimensional dense semantic embeddings; optional switch to OpenAI `text-embedding-3-small`. |
+| **Dense Embeddings** | `sentence-transformers` (`all-MiniLM-L6-v2`), Google GenAI (`text-embedding-004`), OpenAI (`text-embedding-3-small`) | Local zero-cost 384-dim dense semantic embeddings or cloud API embeddings switchable via `EMBEDDING_PROVIDER`. |
 | **Reranking** | `Cross-Encoder` (`cross-encoder/ms-marco-MiniLM-L-6-v2`) | Full query-passage cross-attention to eliminate false positives from hybrid retrieval before LLM context generation. |
-| **LLM Backends** | **Google Gemini** (`gemini-3.5-flash-lite`), **Ollama** (`llama3.1`), **OpenAI** (`gpt-4o-mini`) | Switchable via `.env`. Google Gemini provides fast, reliable cloud inference; Ollama provides 100% offline data privacy; OpenAI gives enterprise flexibility. |
+| **LLM Backends** | **Google Gemini** (`gemini-3.5-flash-lite`), **Ollama** (`llama3.1`), **OpenAI** (`gpt-4o-mini`) | Switchable via `.env` or UI selector. Gemini provides fast cloud inference; Ollama provides 100% offline air-gapped data privacy; OpenAI gives enterprise flexibility. |
+| **PyTorch Optimization** | PyTorch CPU (`--extra-index-url .../whl/cpu`) | CPU-only wheel (~180 MB download vs. ~3 GB CUDA wheel) preventing container memory/disk exhaustion on Streamlit Community Cloud. |
 | **OCR Ingestion** | `rapidocr-onnxruntime` + `pypdfium2` (fallback to `pytesseract` + `pdf2image`) | High-speed, pure-Python / ONNX OCR engine requiring zero external system binaries; extracts text from scanned PDF circulars and image notices with persistent disk caching. |
-| **User Interface** | **Streamlit** | Premium Dark Aurora mesh gradient UI with translucent glassmorphic cards, live document counters, reactive chat elements, and expandable citations. |
-| **Access Control** | `streamlit-authenticator` + `bcrypt` | Secure administrative authentication with salted bcrypt password hashing stored in gitignored YAML config. |
+| **User Interface** | **Streamlit** + Custom CSS (`static/style.css`) | Institutional J&K Government branding, glowing document download cards (`static/docs/`), interactive suggestion chips, live statistics pill, and sticky query bar. |
+| **Access Control** | `streamlit-authenticator` + `bcrypt` | Secure administrative authentication with salted bcrypt password hashing stored in YAML config. |
+| **Automated Testing** | **pytest** (`tests/`) | 26 passing unit and integration tests verifying chunking, embeddings, conversational memory, and hybrid retrieval. |
+| **CI / Cloud Keepalive** | **GitHub Actions** (`.github/workflows/keepalive.yaml`) | Automated cron ping workflow ensuring 24/7 uptime for the live Streamlit Community Cloud deployment. |
 
 ---
 
@@ -178,29 +188,29 @@ While standard search engines only return raw links, the integrated LLM backend 
 ```
 kgp-gyankosh/
 ├── README.md                         # Complete project documentation and capstone report
-├── requirements.txt                  # Pinned Python package dependencies
+├── PROJECT_ARCHITECTURE_AND_FEATURES.md # Deep architectural inventory and codebase reference
+├── requirements.txt                  # Python dependencies (CPU-optimized PyTorch)
+├── pytest.ini                        # Pytest configuration
 ├── .env.example                      # Documented configuration template
-├── .env                              # Active environment configuration (gitignored)
-├── .gitignore                        # Strict exclusion of keys, YAML credentials, and indices
+├── .env                              # Active environment configuration
+├── .gitignore                        # Exclusion of temporary caches and private keys
+├── .github/
+│   └── workflows/
+│       └── keepalive.yaml            # Streamlit Cloud keepalive ping automation
 ├── config/
 │   ├── auth_config.yaml.example      # Template for authentication accounts
-│   └── auth_config.yaml              # Active bcrypt credentials (gitignored)
+│   └── auth_config.yaml              # Active bcrypt administrative credentials
 ├── data/
-│   └── sample_notices/               # 7 representative administrative documents
-│       ├── KGP_Order_Attendance_and_Leave_Rules_2026.pdf
-│       ├── KGP_Circular_Odd_Semester_Examinations_2026.docx
-│       ├── KGP_Notice_Polytechnic_Diploma_Admissions_2026.pdf
-│       ├── KGP_Circular_Revised_Fee_Structure_2026.pdf
-│       ├── KGP_Order_Student_Grievance_Redressal_Committee.txt
-│       ├── KGP_Notice_AntiRagging_and_Campus_Discipline.pdf
-│       └── KGP_Scanned_Circular_Condonation_Committee.png
+│   ├── sample_notices/               # 7 representative administrative documents
+│   ├── pdf/                          # Official scanned and digital PDF circulars
+│   └── word/                         # Official Microsoft Word (.docx) circulars
 ├── src/
 │   ├── ingestion/
-│   │   ├── ocr_loader.py             # Pure-Python RapidOCR + pypdfium2 (zero binary dependency) with Tesseract fallback
+│   │   ├── ocr_loader.py             # OCR engine (RapidOCR / Tesseract fallback)
 │   │   ├── document_loader.py        # Unified multi-format parser with metadata tracking
 │   │   └── chunker.py                # High-speed recursive text splitting with chunk IDs
 │   ├── indexing/
-│   │   ├── embeddings.py             # Switchable SentenceTransformers / OpenAI embeddings
+│   │   ├── embeddings.py             # Switchable SentenceTransformers / Gemini / OpenAI embeddings
 │   │   └── vector_store.py           # FAISS & BM25 persistence with MD5 manifest tracking
 │   ├── retrieval/
 │   │   ├── hybrid_search.py          # Vector + BM25 Reciprocal Rank Fusion (RRF)
@@ -208,16 +218,30 @@ kgp-gyankosh/
 │   ├── memory/
 │   │   └── conversation_memory.py    # Multi-turn history & query reformulation
 │   ├── llm/
-│   │   └── client.py                 # Switchable Google Gemini / Ollama / OpenAI client with anti-hallucination prompt
+│   │   └── client.py                 # Switchable Gemini / Ollama / OpenAI client with anti-hallucination prompt
 │   └── auth/
 │       └── authenticator.py          # Streamlit-authenticator bcrypt login manager
+├── static/
+│   ├── style.css                     # Enterprise dark glassmorphism design system
+│   ├── campus_bg.jpg                 # Polytechnic campus visual background
+│   └── docs/                         # Static served documents for direct download citations
+├── tests/
+│   ├── test_chunker.py               # Unit tests for text chunking & metadata
+│   ├── test_embeddings.py            # Unit tests for embedding provider factory
+│   ├── test_memory.py                # Unit tests for conversation memory & reformulation
+│   └── test_retrieval.py             # Unit tests for BM25, RRF fusion, and CrossEncoder
+├── scripts/
+│   ├── test_queries.py               # Headless CLI test harness for query evaluation
+│   ├── create_diagrams.py            # Architectural diagram generation script
+│   ├── generate_documentation_pdf.py # Project report PDF generator
+│   └── generate_line_by_line_doc_pdf.py # Line-by-line codebase PDF generator
 ├── build_index.py                    # Stage 1: Batch offline indexing CLI
 ├── app.py                            # Stage 2: Streamlit web application
 └── output/
-    ├── index_manifest.json           # Incremental indexing state tracking file hashes
+    ├── index_manifest.json           # Registry of 1,158 documents and 8,166 clauses
     ├── index_logs/                   # Execution logs per indexing run
-    ├── ocr_cache/                    # Precomputed OCR text cache for scanned documents (e.g. Orders.pdf)
-    ├── vector_store/                 # Serialized FAISS index files (index.faiss, index.pkl)
+    ├── ocr_cache/                    # Precomputed OCR text cache for scanned documents
+    ├── vector_store/                 # Serialized FAISS index (index.faiss, index.pkl)
     └── bm25_store/                   # Serialized BM25 model & tokenized corpus
 ```
 
@@ -263,6 +287,15 @@ cp config/auth_config.yaml.example config/auth_config.yaml
 Pre-configured default credentials for evaluation:
 - **Administrator**: Username `admin_kgp` / Password `KgpAdmin@2026` (Principal / Head of Admin)
 - **Academic Staff**: Username `clerk_academic` / Password `Academic@2026` (Academic Section In-Charge)
+- **Examination Wing**: Username `exam_wing` / Password `Exam@2026` (Controller of Examinations)
+- **HOD / Faculty**: Username `hod_polytechnic` / Password `Faculty@2026` (Senior Faculty)
+
+### Step 5: Run Automated Verification Tests
+Verify system integrity by executing the complete test suite:
+```bash
+pytest -v
+```
+*(All 26 unit and integration tests validate text chunking, embedding fallbacks, conversation memory reformulation, BM25 tokenization, and reciprocal rank fusion).*
 
 ---
 
@@ -277,7 +310,7 @@ Pre-configured default credentials for evaluation:
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Endpoint URL of local Ollama daemon. |
 | `OPENAI_API_KEY` | `""` | OpenAI API Key (required if `LLM_PROVIDER=openai`). |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI chat model. |
-| `EMBEDDING_PROVIDER` | `sentence-transformers` | `sentence-transformers` (local) or `openai`. |
+| `EMBEDDING_PROVIDER` | `sentence-transformers` | `sentence-transformers` (local), `google`, or `openai`. |
 | `EMBEDDING_MODEL_NAME` | `all-MiniLM-L6-v2` | Hugging Face embedding model name for local embeddings. |
 | `RERANKER_MODEL` | `cross-encoder/ms-marco-MiniLM-L-6-v2` | Cross-encoder model for passage reranking. |
 | `ENABLE_RERANKER` | `true` | Toggle cross-encoder reranking stage. |
@@ -314,13 +347,28 @@ python build_index.py --data-dir path/to/notices
 - Serializes FAISS index to `output/vector_store/` and BM25 index to `output/bm25_store/`.
 - Updates `output/index_manifest.json` with file hashes for future incremental runs.
 
-### Stage 2: Run Query Application (`app.py`)
-Launch the Streamlit interface:
+### Stage 2: Run Local Web Application (`app.py`)
+Launch the Streamlit interface locally or on your campus LAN:
 ```bash
 streamlit run app.py
 ```
 Access the application in your web browser at:
 `http://localhost:8501` (or local network IP `http://192.168.x.x:8501`).
+
+### Stage 3: Live Cloud Web Deployment (Streamlit Community Cloud)
+The repository is production-ready for instantaneous cloud deployment:
+1. **Repository Linkage**: Connect your GitHub repository (`kgp-gyankosh`) to [Streamlit Community Cloud](https://share.streamlit.io/).
+2. **Pre-Built Indices**: The repository contains pre-built FAISS and BM25 index artifacts in `output/`, eliminating query-time indexing overhead and build timeouts.
+3. **CPU-Optimized PyTorch**: `requirements.txt` is configured with the PyTorch CPU extra-index, ensuring clean builds well within Streamlit Cloud's container RAM and disk quotas.
+4. **Cloud Secrets Configuration**: In the Streamlit Cloud Dashboard under **App Settings → Secrets**, configure:
+   ```toml
+   LLM_PROVIDER = "google"
+   GOOGLE_API_KEY = "AIzaSy..."
+   GEMINI_MODEL = "gemini-3.5-flash-lite"
+   EMBEDDING_PROVIDER = "sentence-transformers"
+   ```
+5. **Continuous Keepalive**: The repository includes `.github/workflows/keepalive.yaml`, which runs automated scheduled pings every 3 days to prevent Streamlit Cloud from putting the application to sleep.
+6. **Live URL**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
 
 ---
 
@@ -442,8 +490,12 @@ The system is built with a plug-and-play LLM abstraction layer:
 | **Hallucination Mitigation** | `src/llm/client.py` (Strict system prompt & empty fallback) | Completed |
 | **Switchable LLM Backend** | `src/llm/client.py` (Google Gemini default vs Ollama vs OpenAI via `.env`) | Completed |
 | **Access Control Layer** | `src/auth/authenticator.py` (`streamlit-authenticator` + `bcrypt`) | Completed |
-| **Streamlit User Interface** | `app.py` (Chat interface, Dark Aurora Mesh Gradient, live statistics) | Completed |
+| **Streamlit User Interface** | `app.py` & `static/style.css` (Dark glassmorphism UI, suggestion chips, live badges) | Completed |
+| **Document Download Cards** | `app.py` & `static/docs/` (Responsive document cards for direct citation downloads) | Completed |
+| **Automated Testing Suite** | `tests/` & `pytest.ini` (26 unit and integration tests passing) | Completed |
+| **Cloud Deployment & Keepalive** | `.github/workflows/keepalive.yaml` (Streamlit Cloud zero-downtime hosting) | Completed |
 | **Logging & Error Handling** | `output/index_logs/` & standard logging across all modules | Completed |
-| **Official Administrative Data** | `Documents/` & `data/sample_notices/` (1,158+ official documents, 8,166 clauses) | Completed |
+| **Official Administrative Data** | `data/` (1,158 official documents, 8,166 clauses indexed in FAISS and BM25) | Completed |
 | **No Committed Secrets** | `.gitignore` protecting `.env` and `config/auth_config.yaml` | Completed |
-| **Documentation & Diagram** | `README.md` (Full capstone report with ASCII architecture) | Completed |
+| **Documentation & Diagram** | `README.md` & `PROJECT_ARCHITECTURE_AND_FEATURES.md` (Comprehensive documentation) | Completed |
+
