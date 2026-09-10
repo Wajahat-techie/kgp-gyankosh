@@ -747,32 +747,19 @@ def main():
                 st.markdown(message["content"])
 
     def scroll_to_bottom():
-        """Smoothly auto-scrolls down to reveal newly rendered queries, spinner, and answers."""
+        """Smoothly auto-scrolls down to reveal newly rendered queries, spinner, and answers without hiding behind the bottom bar."""
         js = """
         <script>
             function doScroll() {
                 try {
                     const doc = window.parent.document;
-                    const scrollContainers = [
-                        doc.querySelector('[data-testid="stMain"]'),
-                        doc.querySelector('section.main'),
-                        doc.querySelector('[data-testid="stAppViewContainer"]'),
-                        doc.documentElement,
-                        doc.body
-                    ];
-                    for (const el of scrollContainers) {
-                        if (el && el.scrollHeight > el.clientHeight) {
-                            el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-                        }
-                    }
-                    const lastMsg = doc.querySelector('[data-testid="stChatMessage"]:last-of-type') || doc.querySelector('[data-testid="stChatInput"]');
+                    const lastMsg = doc.querySelector('[data-testid="stChatMessage"]:last-of-type');
                     if (lastMsg) {
-                        lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        lastMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
                 } catch (e) {}
             }
-            setTimeout(doScroll, 40);
-            setTimeout(doScroll, 250);
+            setTimeout(doScroll, 50);
         </script>
         """
         st.components.v1.html(js, height=0)
