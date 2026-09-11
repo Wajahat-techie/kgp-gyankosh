@@ -22,3 +22,15 @@ credentials:
       # Default demo password: Academic@2026 (pre-hashed with bcrypt)
       password: "$2b$12$6sGCCmmCoDVHkvMY3RNjFugTerI//YW99Q0B2oExdVV1o.odiyogy"
       role: "staff"
+    exam_wing:
+      email: "examinations@kgpolytechnic.ac.in"
+      name: "Examination Wing Controller"
+      # Default demo password: Exam@2026 (pre-hashed with bcrypt)
+      password: "$2b$12$Jj0mBEv9TeLFj8Ym7IgpyOLBxclFKOcbCT3Z238nFGozkgW0y69L2"
+      role: "staff"
+    hod_polytechnic:
+      email: "hod.engg@kgpolytechnic.ac.in"
+      name: "Head of Department / Senior Faculty"
+      # Default demo password: Faculty@2026 (pre-hashed with bcrypt)
+      password: "$2b$12$lmR9wZH2U2ILkQiY62sfJ.lI8x9IhHkwV09Rv.cH02S2qAqlurADm"
+      role: "faculty"
