@@ -616,7 +616,12 @@ button[data-testid="stChatInputSubmitButton"]:disabled {
 
 iframe[height="0"],
 iframe[title*="html"] {
-    display: none !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 /* Premium Glassmorphic Download Cards & Buttons */

@@ -676,7 +676,17 @@ def main():
         else '<div class="official-answer-stamp" style="border-left-color: #c084fc; color: #d8b4fe;"><span>🌐 GENERAL AI RESPONSE</span><span>🤖 DIRECT LLM SYNTHESIS</span></div>'
     )
 
-    if st.session_state.chat_messages:
+    # User input with mode-specific placeholder (docked at bottom by Streamlit)
+    input_placeholder = (
+        f"💬 Type your message here (e.g. 'Draft a circular for faculty meeting')... [Press Enter]"
+        if is_general_ai
+        else "🔍 Ask about college circulars, leave rules, notices, or admissions... [Press Enter]"
+    )
+    prompt = st.chat_input(input_placeholder)
+
+    has_active_conversation = bool(st.session_state.chat_messages or prompt)
+
+    if has_active_conversation:
         # Compact top header during active conversation so messages remain visible
         st.markdown(
             f"""
@@ -753,13 +763,26 @@ def main():
             function doScroll() {
                 try {
                     const doc = window.parent.document;
+                    const scrollContainers = [
+                        doc.querySelector('[data-testid="stMain"]'),
+                        doc.querySelector('section.main'),
+                        doc.querySelector('[data-testid="stAppViewContainer"]'),
+                        doc.documentElement,
+                        doc.body
+                    ];
+                    for (const el of scrollContainers) {
+                        if (el && el.scrollHeight > el.clientHeight) {
+                            el.scrollTo({ top: el.scrollHeight + 2000, behavior: 'smooth' });
+                        }
+                    }
                     const lastMsg = doc.querySelector('[data-testid="stChatMessage"]:last-of-type');
                     if (lastMsg) {
-                        lastMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
                     }
                 } catch (e) {}
             }
-            setTimeout(doScroll, 50);
+            setTimeout(doScroll, 60);
+            setTimeout(doScroll, 250);
         </script>
         """
         st.components.v1.html(js, height=0)
@@ -767,8 +790,8 @@ def main():
     if st.session_state.chat_messages:
         scroll_to_bottom()
 
-    # Empty State Guidance
-    if not st.session_state.chat_messages:
+    # Empty State Guidance: only shown when no active conversation or input exists
+    if not has_active_conversation:
         st.markdown(
             f"""
             <div class="official-welcome-deck">
@@ -782,14 +805,6 @@ def main():
             unsafe_allow_html=True
         )
 
-    # User input with mode-specific placeholder
-    input_placeholder = (
-        f"💬 Type your message here (e.g. 'Draft a circular for faculty meeting')... [Press Enter]"
-        if is_general_ai
-        else "🔍 Ask about college circulars, leave rules, notices, or admissions... [Press Enter]"
-    )
-    user_input = st.chat_input(input_placeholder)
-    prompt = user_input
     if prompt:
         # Prevent any duplicate/orphaned user bubbles
         while st.session_state.chat_messages and st.session_state.chat_messages[-1].get("role") == "user":
