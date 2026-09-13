@@ -1,19 +1,10 @@
 """
-==============================================================================
-KGP Gyankosh - Stage 1: Offline Ingestion & Indexing Pipeline (build_index.py)
-Kashmir Government Polytechnic College, Srinagar - Administration Department
-==============================================================================
+Document ingestion and indexing pipeline for KGP Gyankosh.
 
-This script is executed once or whenever new administrative orders, notices,
-or circulars are placed into the data folder.
-Pipeline:
-1. Scans data directory for supported documents (PDF, DOCX, TXT, Scanned Images).
-2. Performs incremental hash comparison against manifest to process only new/changed files.
-3. Extracts text (with OCR fallback for scanned materials).
-4. Recursively chunks documents with metadata preservation.
-5. Computes dense embeddings and merges them into the FAISS vector database.
-6. Builds and serializes the BM25 sparse keyword search index.
-7. Logs all operations simultaneously to console and output/index_logs/.
+Reads documents from the data directory (PDF, DOCX, TXT, Images),
+extracts text with OCR support for scanned pages, splits into chunks,
+generates dense vector embeddings (FAISS) and builds a BM25 sparse index.
+Supports incremental indexing via file MD5 hash comparison.
 """
 
 import os
@@ -23,12 +14,10 @@ import datetime
 import logging
 from dotenv import load_dotenv
 
-# Ensure project root is in sys.path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# Load environment variables
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 from src.ingestion.document_loader import (
@@ -51,36 +40,35 @@ from langchain_community.vectorstores import FAISS
 
 
 def setup_logging(log_dir: str) -> logging.Logger:
-    """Configures dual logging to both console and a timestamped log file."""
+    """Configures logging to both stdout and a timestamped file."""
     os.makedirs(log_dir, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = os.path.join(log_dir, f"index_run_{timestamp}.log")
 
     logger = logging.getLogger("kgp_gyankosh")
     logger.setLevel(logging.INFO)
-    logger.handlers = []  # Clear previous handlers
+    logger.handlers = []
 
     formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s")
 
-    # File handler
     fh = logging.FileHandler(log_file, encoding="utf-8")
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-    # Console handler
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    logger.info(f"Initialized indexing log session: {log_file}")
+    logger.info(f"Indexing log started: {log_file}")
     return logger
 
 
 def run_indexing(data_dir: str, rebuild: bool = False) -> None:
     """
-    Executes the Stage 1 document ingestion and indexing pipeline.
+    Main indexing pipeline: discovers documents, chunks text, and creates/updates
+    FAISS vector store and BM25 index.
     """
     log_dir = os.getenv("INDEX_LOG_DIR", "output/index_logs")
     if not os.path.isabs(log_dir):
@@ -100,11 +88,7 @@ def run_indexing(data_dir: str, rebuild: bool = False) -> None:
         data_dir = os.path.abspath(os.path.join(PROJECT_ROOT, data_dir))
 
     logger = setup_logging(log_dir)
-    logger.info("==================================================================")
-    logger.info("Starting KGP Gyankosh Indexing Stage (Stage 1: Offline Batch Ingestion)")
-    logger.info(f"Target Data Directory: {data_dir}")
-    logger.info(f"Rebuild Mode: {rebuild}")
-    logger.info("==================================================================")
+    logger.info(f"Starting document indexing on: {data_dir} (rebuild={rebuild})")
 
     if not os.path.exists(data_dir):
         logger.error(f"Data directory does not exist: {data_dir}")
@@ -130,7 +114,7 @@ def run_indexing(data_dir: str, rebuild: bool = False) -> None:
         logger.warning(f"No supported documents found in {data_dir}. Exiting.")
         return
 
-    logger.info(f"Discovered {len(candidate_files)} supported document(s) in source directory.")
+    logger.info(f"Found {len(candidate_files)} supported document(s) in {data_dir}")
 
     # Identify new or changed files
     files_to_process = []
@@ -147,11 +131,10 @@ def run_indexing(data_dir: str, rebuild: bool = False) -> None:
         
         files_to_process.append((file_path, current_hash))
 
-    logger.info(f"Incremental Check: {len(unchanged_files)} unchanged file(s) skipped.")
-    logger.info(f"Files to process: {len(files_to_process)} new or modified document(s).")
+    logger.info(f"Skipping {len(unchanged_files)} unchanged file(s). Processing {len(files_to_process)} file(s).")
 
     if not files_to_process and not rebuild:
-        logger.info("No changes detected. Vector and BM25 indices are completely up to date.")
+        logger.info("No changes detected. Indices are up to date.")
         return
 
     # Load and chunk new/modified documents
@@ -176,7 +159,7 @@ def run_indexing(data_dir: str, rebuild: bool = False) -> None:
                 "chunks_count": len(chunks),
                 "last_indexed_at": datetime.datetime.now().isoformat()
             }
-            logger.info(f"Chunked '{file_name}': produced {len(chunks)} chunks.")
+            logger.info(f"Chunked '{file_name}': {len(chunks)} chunks.")
         except Exception as err:
             logger.error(f"Error processing document '{file_name}': {err}", exc_info=True)
 
@@ -185,33 +168,30 @@ def run_indexing(data_dir: str, rebuild: bool = False) -> None:
         return
 
     # Update or Create FAISS Vector Store
-    logger.info(f"Updating FAISS Vector Store with {len(new_chunks)} new chunk embeddings...")
+    logger.info(f"Generating embeddings for {len(new_chunks)} chunks...")
     vector_store = None
     if not rebuild:
         vector_store = load_vector_store(vector_store_dir, embeddings)
 
     if vector_store is None or rebuild:
         if not new_chunks:
-            logger.error("Cannot build a new index with 0 chunks.")
+            logger.error("Cannot build index with 0 chunks.")
             return
         vector_store = FAISS.from_documents(new_chunks, embeddings)
         logger.info(f"Created fresh FAISS vector index with {len(new_chunks)} chunks.")
     else:
         vector_store.add_documents(new_chunks)
-        logger.info(f"Added {len(new_chunks)} chunks into existing FAISS vector index.")
+        logger.info(f"Added {len(new_chunks)} chunks to existing FAISS vector index.")
 
     save_vector_store(vector_store, vector_store_dir)
 
-    # Rebuild complete BM25 Index over all active chunks
-    # To ensure complete synchronization, gather all indexed chunks
-    logger.info("Synchronizing and persisting BM25 keyword search index...")
+    # Rebuild BM25 index over all active chunks
+    logger.info("Building BM25 keyword search index...")
     all_chunks = []
     
-    # If not rebuild, load existing corpus from BM25 store and append new ones
     if not rebuild:
         _, existing_corpus = load_bm25_store(bm25_store_dir)
         if existing_corpus:
-            # Filter out chunks belonging to files being updated to prevent duplicates
             updated_names = set(processed_files_metadata.keys())
             all_chunks = [c for c in existing_corpus if c.metadata.get("source") not in updated_names]
 
@@ -226,30 +206,25 @@ def run_indexing(data_dir: str, rebuild: bool = False) -> None:
     manifest["last_updated_at"] = datetime.datetime.now().isoformat()
     save_manifest(manifest_path, manifest)
 
-    logger.info("==================================================================")
-    logger.info("Stage 1 Indexing Completed Successfully!")
-    logger.info(f"Total files in index: {len(indexed_files)}")
-    logger.info(f"Total chunks in FAISS and BM25: {len(all_chunks)}")
-    logger.info(f"FAISS directory: {vector_store_dir}")
-    logger.info(f"BM25 directory: {bm25_store_dir}")
-    logger.info(f"Manifest: {manifest_path}")
-    logger.info("==================================================================")
+    logger.info("Indexing completed successfully!")
+    logger.info(f"Total documents: {len(indexed_files)} | Total chunks: {len(all_chunks)}")
+    logger.info(f"Vector store: {vector_store_dir} | BM25 store: {bm25_store_dir}")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="KGP Gyankosh - Stage 1 Ingestion and Indexing CLI"
+        description="KGP Gyankosh document ingestion and indexing utility."
     )
     parser.add_argument(
         "--data-dir",
         type=str,
-        default=os.getenv("DATA_DIR", os.path.join(PROJECT_ROOT, "data", "sample_notices")),
-        help="Path to directory containing notices and administrative orders."
+        default=os.getenv("DATA_DIR", os.path.join(PROJECT_ROOT, "data")),
+        help="Path to folder containing documents to index."
     )
     parser.add_argument(
         "--rebuild",
         action="store_true",
-        help="Force a complete rebuild from scratch, ignoring incremental manifest."
+        help="Force full rebuild from scratch, ignoring manifest cache."
     )
     args = parser.parse_args()
 
