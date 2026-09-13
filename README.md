@@ -1,7 +1,7 @@
 # KGP Gyankosh: Administrative Knowledge Assistant with Advanced RAG
 ### Internal Document Search & Intelligence Platform for Kashmir Government Polytechnic College, Srinagar
 **Capstone Project: IIT Patna — Generative AI & Agentic AI for Developers**  
-*Designed and Developed by **Wajahat** (Department of Computer Engineering)*
+*Enterprise Administrative Knowledge Assistant with Advanced Two-Stage RAG*
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kgp-gyankosh.streamlit.app/)
 [![Tests](https://img.shields.io/badge/pytest-26%20passed-success)](tests/)
@@ -477,14 +477,14 @@ Open `http://localhost:8501` in your browser and log in with any demo account (e
 
 ---
 
-## 17. Author & Contact
+## 17. Project Links & Resources
 
-**Wajahat**  
-Department of Computer Engineering  
-Kashmir Government Polytechnic College, Srinagar  
-📧 Email: `kgpolysgr58@gmail.com`  
-📞 Contact: `+91 9906457756`  
-🔗 Live Web App: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
+- 🌐 **Live Web Application**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
+- 💻 **GitHub Repository**: [https://github.com/Wajahat-techie/kgp-gyankosh](https://github.com/Wajahat-techie/kgp-gyankosh)
+- 📊 **Presentation Slide Deck**: [Download PPTX (17.8 MB)](docs/KGP_Gyankosh_Presentation.pptx)
+- 📝 **Presentation Speaker Notes**: [Download Notes (DOCX)](docs/KGP_Gyankosh_Presentation_Notes.docx)
+- 📑 **System Architecture PDF**: [Download PDF](docs/reports/KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf)
+- 📖 **Complete Documentation PDF**: [Download PDF](docs/reports/KGP_Gyankosh_Complete_Documentation.pdf)
 
 ---
 

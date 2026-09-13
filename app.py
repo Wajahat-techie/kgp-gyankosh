@@ -533,9 +533,7 @@ def render_landing_hero(total_files: int = None, total_chunks: int = None):
             </div>
             <div style="margin-top: 1.4rem;">
                 <div class="landing-developer-badge">
-                    <span>Designed and Developed by <strong>Wajahat</strong></span>
-                    <span style="opacity: 0.6;">•</span>
-                    <span style="color: #38bdf8;">📞 9906457756</span>
+                    <span>🏛️ Kashmir Government Polytechnic College • Administrative Intelligence</span>
                 </div>
             </div>
         </div>
@@ -583,7 +581,7 @@ def main():
         st.markdown(
             """
             <div class="app-bottom-credit-bar" style="margin-top: 2.5rem;">
-                🏛️ <strong>KGP Gyankosh</strong> • Administrative Intelligence Assistant • Designed and Developed by <strong>Wajahat</strong> • 📞 <strong>9906457756</strong>
+                🏛️ <strong>KGP Gyankosh</strong> • Administrative Knowledge Assistant • Kashmir Government Polytechnic College
             </div>
             """,
             unsafe_allow_html=True
@@ -801,14 +799,13 @@ def main():
                     except Exception as r_err:
                         logger.warning(f"Could not load file {r_fname}: {r_err}")
 
-        # Developer Attribution Card in Sidebar
+        # System Platform Info Card in Sidebar
         st.divider()
         st.markdown(
             """
             <div class="developer-credit-card">
-                <div class="developer-credit-title">SYSTEM ARCHITECT & DEVELOPER</div>
-                <div class="developer-credit-name">Designed and Developed by Wajahat</div>
-                <div class="developer-credit-phone">📞 9906457756</div>
+                <div class="developer-credit-title">SYSTEM PLATFORM</div>
+                <div class="developer-credit-name">KGP Gyankosh • Advanced Two-Stage RAG</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -1044,11 +1041,11 @@ def main():
                 st.error(f"⚠️ Query error: {err}")
                 logger.error(f"Error handling query: {err}", exc_info=True)
 
-    # Developer Credit Bar at Interface Bottom
+    # Footer Credit Bar at Interface Bottom
     st.markdown(
         """
         <div class="app-bottom-credit-bar">
-            🏛️ <strong>KGP Gyankosh</strong> • Administrative Intelligence Assistant • Designed and Developed by <strong>Wajahat</strong> • 📞 <strong>9906457756</strong>
+            🏛️ <strong>KGP Gyankosh</strong> • Administrative Knowledge Assistant • Kashmir Government Polytechnic College
         </div>
         """,
         unsafe_allow_html=True
