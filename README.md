@@ -13,6 +13,11 @@
 - 📊 **Presentation Slide Deck**: [Download PPTX (17.8 MB)](docs/KGP_Gyankosh_Presentation.pptx) | [Download Presentation Notes (DOCX)](docs/KGP_Gyankosh_Presentation_Notes.docx)
 - 📑 **Technical Reports**: [System Architecture PDF](docs/reports/KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf) | [Complete Documentation PDF](docs/reports/KGP_Gyankosh_Complete_Documentation.pdf)
 
+> [!IMPORTANT]
+> **Quick LLM Setup Notice**:
+> - **To run with Cloud AI (Fastest)**: Copy `.env.example` to `.env` and add your **Google Gemini API Key** (`GOOGLE_API_KEY=...`) or **OpenAI API Key** (`OPENAI_API_KEY=...`).
+> - **To run 100% Free & Offline (Zero Cloud Cost / Full Data Privacy)**: Install [Ollama](https://ollama.com/), run `ollama run llama3.1`, and set `LLM_PROVIDER=ollama` in `.env`. **No API keys or internet connection required!**
+
 ---
 
 ## 1. Project Background & Institutional Motivation
@@ -422,24 +427,38 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 4: Configure Environment Variables
-Copy `.env.example` to `.env`:
-```bash
-cp .env.example .env
-```
-Set your preferred LLM provider in `.env`:
+### Step 4: Configure Environment Variables & LLM Provider
+
+> [!IMPORTANT]
+> **API Key Setup & Model Choice**:
+> 1. Copy the template file:
+>    ```bash
+>    cp .env.example .env
+>    ```
+> 2. Open `.env` in any text editor and choose your configuration:
+>    - **Option A — Cloud LLM (Google Gemini / OpenAI)**:
+>      Paste your free Gemini API key from [Google AI Studio](https://aistudio.google.com/) (`GOOGLE_API_KEY=your_key_here`) or OpenAI key (`OPENAI_API_KEY=your_key_here`).
+>    - **Option B — Fully Offline Local LLM (Ollama / Llama 3.1)**:
+>      If you prefer 100% privacy with zero token costs and no internet API calls, simply start Ollama locally (`ollama run llama3.1`) and set `LLM_PROVIDER=ollama` in `.env`. No API keys required!
+
 ```env
-# Default: Google Gemini (Free API Key from Google AI Studio)
+# -----------------------------------------------------------
+# OPTION 1: Google Gemini Cloud (Default - Free Google Studio Key)
+# -----------------------------------------------------------
 LLM_PROVIDER=google
 GOOGLE_API_KEY=your_google_gemini_api_key_here
 GEMINI_MODEL=gemini-2.5-flash
 
-# Optional: Local Ollama (100% Free & Offline)
+# -----------------------------------------------------------
+# OPTION 2: 100% Offline Local Inference (No API Key Required!)
+# -----------------------------------------------------------
 # LLM_PROVIDER=ollama
 # OLLAMA_MODEL=llama3.1:latest
 # OLLAMA_BASE_URL=http://localhost:11434
 
-# Optional: OpenAI
+# -----------------------------------------------------------
+# OPTION 3: OpenAI Cloud API
+# -----------------------------------------------------------
 # LLM_PROVIDER=openai
 # OPENAI_API_KEY=your_openai_api_key_here
 # OPENAI_MODEL=gpt-4o-mini
