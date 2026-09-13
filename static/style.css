@@ -906,5 +906,71 @@ iframe[title*="html"] {
     margin-bottom: 1rem;
 }
 
+/* Developer Attribution Badges & Footers */
+.developer-credit-card {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(99, 102, 241, 0.15) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.developer-credit-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+
+.developer-credit-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff 0%, #38bdf8 60%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.developer-credit-phone {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-top: 2px;
+}
+
+.landing-developer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(168, 85, 247, 0.2) 100%);
+    border: 1.5px solid rgba(56, 189, 248, 0.45);
+    border-radius: 9999px;
+    padding: 6px 18px;
+    margin-top: 1.2rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.25);
+}
+
+.app-bottom-credit-bar {
+    text-align: center;
+    padding: 12px 0 6px 0;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    margin-top: 2rem;
+}
+
+.app-bottom-credit-bar strong {
+    color: #38bdf8;
+    font-weight: 700;
+}
+
+
 
 

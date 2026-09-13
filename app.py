@@ -477,13 +477,29 @@ def get_cached_llm_client(provider: str, model_name: str) -> LLMClient:
 
 
 # ==============================================================================
-# SESSION STATE INITIALIZATION
+# SESSION STATE INITIALIZATION & MULTI-CHAT SESSION MANAGER
 # ==============================================================================
-if "memory" not in st.session_state:
-    st.session_state.memory = ConversationMemory(max_history_turns=6)
+import datetime
 
-if "chat_messages" not in st.session_state:
-    st.session_state.chat_messages = []
+def get_active_session():
+    """Ensures session state contains valid multi-turn chat sessions and returns active session data."""
+    if "chat_sessions" not in st.session_state or not st.session_state.chat_sessions:
+        s_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:19]
+        st.session_state.chat_sessions = {
+            s_id: {
+                "id": s_id,
+                "title": "New Chat",
+                "created_at": datetime.datetime.now().strftime("%b %d, %H:%M"),
+                "messages": [],
+                "memory": ConversationMemory(max_history_turns=6)
+            }
+        }
+        st.session_state.active_session_id = s_id
+
+    if st.session_state.get("active_session_id") not in st.session_state.chat_sessions:
+        st.session_state.active_session_id = list(st.session_state.chat_sessions.keys())[-1]
+
+    return st.session_state.chat_sessions[st.session_state.active_session_id]
 
 
 def render_landing_hero(total_files: int = 1162, total_chunks: int = 7801):
@@ -509,6 +525,13 @@ def render_landing_hero(total_files: int = 1162, total_chunks: int = 7801):
                 <div class="stat-box">
                     <span class="stat-num">{total_chunks:,}</span>
                     <span class="stat-label">Searchable Clauses</span>
+                </div>
+            </div>
+            <div style="margin-top: 1.4rem;">
+                <div class="landing-developer-badge">
+                    <span>✨ Designed and Developed by <strong>Wajahat</strong></span>
+                    <span style="opacity: 0.6;">•</span>
+                    <span style="color: #38bdf8;">📞 9906457756</span>
                 </div>
             </div>
         </div>
@@ -555,8 +578,28 @@ def main():
         return
 
     # --------------------------------------------------------------------------
-    # 2. AUTHENTICATED USER SESSION & SIDEBAR
+    # 2. AUTHENTICATED USER SESSION & FRESH WINDOW LOGIC
     # --------------------------------------------------------------------------
+    username = st.session_state.get("username", "Admin")
+    name = st.session_state.get("name", "Administrative Staff")
+
+    # On brand new login, ensure a fresh conversation window is initialized
+    if st.session_state.get("last_authenticated_user") != username:
+        st.session_state.last_authenticated_user = username
+        s_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:19]
+        if "chat_sessions" not in st.session_state:
+            st.session_state.chat_sessions = {}
+        st.session_state.chat_sessions[s_id] = {
+            "id": s_id,
+            "title": "New Chat",
+            "created_at": datetime.datetime.now().strftime("%b %d, %H:%M"),
+            "messages": [],
+            "memory": ConversationMemory(max_history_turns=6)
+        }
+        st.session_state.active_session_id = s_id
+
+    active_session = get_active_session()
+
     system_resources = initialize_system()
     retriever = system_resources["retriever"]
     reranker = system_resources["reranker"]
@@ -564,7 +607,9 @@ def main():
     manifest = system_resources["manifest"]
     index_ready = system_resources["index_ready"]
 
-    # Sidebar
+    # --------------------------------------------------------------------------
+    # 3. SIDEBAR WITH RECENT CHATS & CONTROLS
+    # --------------------------------------------------------------------------
     with st.sidebar:
         st.markdown(
             """
@@ -583,10 +628,53 @@ def main():
         st.divider()
 
         # User profile & logout
-        username = st.session_state.get("username", "Admin")
-        name = st.session_state.get("name", "Administrative Staff")
         st.markdown(f"**Logged in as:**\n👤 **{name}** (`{username}`)")
         authenticator.logout(location="sidebar")
+        st.divider()
+
+        # New Chat Button
+        if st.button("➕ Start New Chat", use_container_width=True, type="primary"):
+            new_s_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:19]
+            st.session_state.chat_sessions[new_s_id] = {
+                "id": new_s_id,
+                "title": "New Chat",
+                "created_at": datetime.datetime.now().strftime("%b %d, %H:%M"),
+                "messages": [],
+                "memory": ConversationMemory(max_history_turns=6)
+            }
+            st.session_state.active_session_id = new_s_id
+            st.rerun()
+
+        # Recent Chats Session History Manager
+        sessions_list = list(st.session_state.chat_sessions.items())
+        with st.expander(f"🕒 Recent Chats ({len(sessions_list)})", expanded=True):
+            for s_key, s_data in reversed(sessions_list):
+                is_active = (s_key == st.session_state.active_session_id)
+                prefix_icon = "🟢 " if is_active else "💬 "
+                display_title = s_data.get("title", "New Chat")
+                if len(display_title) > 22:
+                    display_title = display_title[:20] + "..."
+                msg_count = len(s_data.get("messages", []))
+
+                col_s1, col_s2 = st.columns([4, 1])
+                with col_s1:
+                    if st.button(
+                        f"{prefix_icon}{display_title}",
+                        key=f"sess_btn_{s_key}",
+                        use_container_width=True,
+                        disabled=is_active,
+                        help=f"{s_data.get('title')} ({msg_count} messages) - Created {s_data.get('created_at')}"
+                    ):
+                        st.session_state.active_session_id = s_key
+                        st.rerun()
+                with col_s2:
+                    if len(st.session_state.chat_sessions) > 1:
+                        if st.button("🗑️", key=f"del_btn_{s_key}", help="Delete this chat"):
+                            del st.session_state.chat_sessions[s_key]
+                            if st.session_state.active_session_id == s_key:
+                                st.session_state.active_session_id = list(st.session_state.chat_sessions.keys())[-1]
+                            st.rerun()
+
         st.divider()
 
         # 1. Operational Mode Selector
@@ -622,7 +710,7 @@ def main():
         title_color = "#38bdf8" if is_rag_mode else "#c084fc"
         title_text = "📚 Select LLM for College RAG:" if is_rag_mode else "🤖 Select LLM for General Chat:"
         caption_text = (
-            "🔍 **RAG Mode**: Answers are grounded strictly in 1,162 official college notices with citations."
+            "🔍 **RAG Mode**: Answers are grounded strictly in official college notices with citations and 1-click downloads."
             if is_rag_mode
             else "💬 **General AI Mode**: Direct conversation for drafting notices, coding, and general Q&A."
         )
@@ -661,10 +749,10 @@ def main():
 
         st.divider()
 
-        # Clear Conversation Button
-        if st.button("🗑️ Clear Conversation", use_container_width=True):
-            st.session_state.chat_messages = []
-            st.session_state.memory.clear()
+        # Clear Current Conversation Button
+        if st.button("🗑️ Clear Current Chat", use_container_width=True):
+            active_session["messages"] = []
+            active_session["memory"].clear()
             st.rerun()
 
         # Technical Documentation & Reports Section
@@ -697,8 +785,21 @@ def main():
                     except Exception as r_err:
                         logger.warning(f"Could not load report {r_fname}: {r_err}")
 
+        # Developer Attribution Card in Sidebar
+        st.divider()
+        st.markdown(
+            """
+            <div class="developer-credit-card">
+                <div class="developer-credit-title">SYSTEM ARCHITECT & DEVELOPER</div>
+                <div class="developer-credit-name">Designed & Developed by Wajahat</div>
+                <div class="developer-credit-phone">📞 9906457756</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
     # --------------------------------------------------------------------------
-    # 3. MAIN CHAT INTERFACE
+    # 4. MAIN CHAT INTERFACE
     # --------------------------------------------------------------------------
     # Top Bar Header
     st.markdown(
@@ -720,11 +821,6 @@ def main():
         else '<span style="background: rgba(56, 189, 248, 0.16); color: #7dd3fc; font-size: 0.78rem; font-weight: 700; padding: 4px 14px; border-radius: 9999px; border: 1.5px solid rgba(56, 189, 248, 0.4);">🏛️ Mode: College Records (RAG)</span>'
     )
     active_model_badge = f'<span style="background: rgba(52, 211, 153, 0.16); color: #6ee7b7; font-size: 0.78rem; font-weight: 700; padding: 4px 14px; border-radius: 9999px; border: 1.5px solid rgba(52, 211, 153, 0.4);">🤖 Active Model: {selected_model_label}</span>'
-    mode_description = (
-        f"Direct AI intelligence for drafting official notices, writing letters, explaining concepts, or general administrative writing with <strong>{sel_model}</strong>."
-        if is_general_ai
-        else f"Institutional knowledge search grounded strictly in 1,162 official college notices & circulars with verified citations via <strong>{sel_model}</strong>."
-    )
 
     answer_stamp = (
         '<div class="official-answer-stamp"><span>🛡️ OFFICIAL VERIFIED RECORD</span><span>🏛️ KGP ARCHIVES GROUNDED</span></div>'
@@ -740,7 +836,7 @@ def main():
     )
     prompt = st.chat_input(input_placeholder)
 
-    has_active_conversation = bool(st.session_state.chat_messages or prompt)
+    has_active_conversation = bool(active_session["messages"] or prompt)
 
     if has_active_conversation:
         # Compact top header during active conversation so messages remain visible
@@ -797,18 +893,18 @@ def main():
         return
 
     # Sanitize history: remove any trailing orphaned user message from interrupted/cancelled runs
-    while st.session_state.chat_messages and st.session_state.chat_messages[-1].get("role") == "user":
-        st.session_state.chat_messages.pop()
+    while active_session["messages"] and active_session["messages"][-1].get("role") == "user":
+        active_session["messages"].pop()
 
-    # Render previous conversation history
-    for msg_idx, message in enumerate(st.session_state.chat_messages):
+    # Render current session conversation history
+    for msg_idx, message in enumerate(active_session["messages"]):
         with st.chat_message(message["role"]):
             if message["role"] == "assistant":
                 st.markdown(answer_stamp, unsafe_allow_html=True)
                 content_with_links = linkify_answer_citations(message["content"], manifest)
                 st.markdown(content_with_links, unsafe_allow_html=True)
                 if message.get("sources"):
-                    render_citations_and_links(message["sources"], manifest, key_prefix=f"hist_{msg_idx}")
+                    render_citations_and_links(message["sources"], manifest, key_prefix=f"hist_{active_session['id']}_{msg_idx}")
             else:
                 st.markdown(message["content"])
 
@@ -843,7 +939,7 @@ def main():
         """
         st.components.v1.html(js, height=0)
 
-    if st.session_state.chat_messages:
+    if active_session["messages"]:
         scroll_to_bottom()
 
     # Empty State Guidance: only shown when no active conversation or input exists
@@ -863,11 +959,16 @@ def main():
 
     if prompt:
         # Prevent any duplicate/orphaned user bubbles
-        while st.session_state.chat_messages and st.session_state.chat_messages[-1].get("role") == "user":
-            st.session_state.chat_messages.pop()
+        while active_session["messages"] and active_session["messages"][-1].get("role") == "user":
+            active_session["messages"].pop()
+
+        # Update session title if first query
+        if active_session.get("title") == "New Chat":
+            clean_title = prompt.strip().replace("\n", " ")
+            active_session["title"] = (clean_title[:28] + "...") if len(clean_title) > 28 else clean_title
 
         # Display user query
-        st.session_state.chat_messages.append({"role": "user", "content": prompt})
+        active_session["messages"].append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
         scroll_to_bottom()
@@ -877,7 +978,7 @@ def main():
             try:
                 if "General AI" in assistant_mode:
                     with st.spinner("⚡ Formulating AI response..."):
-                        history_prompt = st.session_state.memory.format_history_for_prompt()
+                        history_prompt = active_session["memory"].format_history_for_prompt()
                         result = llm_client.generate_chat(
                             query=prompt,
                             conversation_history=history_prompt
@@ -887,7 +988,7 @@ def main():
                 else:
                     with st.spinner("⚡ Searching verified college records & synthesizing answer..."):
                         # 1. Multi-turn Query Reformulation
-                        reformulated_query = st.session_state.memory.reformulate_query(prompt, llm_client)
+                        reformulated_query = active_session["memory"].reformulate_query(prompt, llm_client)
 
                         # 2. Hybrid Retrieval (Vector + BM25 Reciprocal Rank Fusion)
                         candidates = retriever.retrieve(reformulated_query)
@@ -897,7 +998,7 @@ def main():
                         top_documents = [doc for doc, score in reranked_docs]
 
                         # 4. Synthesize Answer with Strict Anti-Hallucination Prompt
-                        history_prompt = st.session_state.memory.format_history_for_prompt()
+                        history_prompt = active_session["memory"].format_history_for_prompt()
                         result = llm_client.generate_answer(
                             query=prompt,
                             context_documents=top_documents,
@@ -913,11 +1014,11 @@ def main():
                 st.markdown(content_with_links, unsafe_allow_html=True)
 
                 if sources:
-                    render_citations_and_links(sources, manifest, key_prefix=f"curr_{len(st.session_state.chat_messages)}")
+                    render_citations_and_links(sources, manifest, key_prefix=f"curr_{active_session['id']}_{len(active_session['messages'])}")
 
                 # Update memory & session state
-                st.session_state.memory.add_turn(prompt, answer_text, sources)
-                st.session_state.chat_messages.append({
+                active_session["memory"].add_turn(prompt, answer_text, sources)
+                active_session["messages"].append({
                     "role": "assistant",
                     "content": answer_text,
                     "sources": sources
@@ -927,6 +1028,17 @@ def main():
                 st.error(f"⚠️ Query error: {err}")
                 logger.error(f"Error handling query: {err}", exc_info=True)
 
+    # Developer Credit Bar at Interface Bottom
+    st.markdown(
+        """
+        <div class="app-bottom-credit-bar">
+            🏛️ <strong>KGP Gyankosh</strong> • Enterprise Knowledge Assistant • Designed and Developed by <strong>Wajahat - 9906457756</strong>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
 if __name__ == "__main__":
     main()
+
