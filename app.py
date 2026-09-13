@@ -128,20 +128,27 @@ def resolve_document_file_path(source_filename: str, manifest: dict = None) -> O
     if not source_filename or source_filename == "Unknown Document":
         return None
 
+    clean_name = os.path.basename(source_filename).strip().lower()
+
+    # 1. Direct check in static/extracted_pages if it's already a single-page pdf name
+    extracted_dir = os.path.join(PROJECT_ROOT, "static", "extracted_pages")
+    extracted_candidate = os.path.join(extracted_dir, os.path.basename(source_filename))
+    if os.path.exists(extracted_candidate):
+        return extracted_candidate
+
     data_root = os.path.abspath(os.path.join(PROJECT_ROOT, "data"))
     if not os.path.exists(data_root):
         return None
 
-    clean_name = os.path.basename(source_filename).strip().lower()
-    
-    # 1. Search data/ recursively
+    # 2. Search data/ recursively
     for root, _, files in os.walk(data_root):
         for f in files:
             f_lower = f.lower()
             if f_lower == clean_name:
                 return os.path.join(root, f)
-            # Handle Orders.pdf <-> Orders_11zon.pdf alias
-            if clean_name in ("orders.pdf", "orders_11zon.pdf") and f_lower in ("orders.pdf", "orders_11zon.pdf"):
+            # Handle Orders.pdf <-> Orders_11zon.pdf <-> Notices_and_orders.pdf alias
+            if clean_name in ("orders.pdf", "orders_11zon.pdf", "notices_and_orders.pdf", "orders") and \
+               f_lower in ("orders.pdf", "orders_11zon.pdf", "notices_and_orders.pdf"):
                 return os.path.join(root, f)
             # Match basename without extension
             if os.path.splitext(f_lower)[0] == os.path.splitext(clean_name)[0]:
@@ -164,11 +171,17 @@ def get_document_url_and_path(source_filename: str, manifest: dict = None):
 
     try:
         data_root = os.path.abspath(os.path.join(PROJECT_ROOT, "data"))
-        rel_path = os.path.relpath(file_path, data_root)
-        clean_rel = rel_path.replace(os.sep, "/")
-        encoded_parts = [urllib.parse.quote(part) for part in clean_rel.split("/")]
-        url_path = "app/static/docs/" + "/".join(encoded_parts)
-        return url_path, file_path
+        if file_path.startswith(data_root):
+            rel_path = os.path.relpath(file_path, data_root)
+            clean_rel = rel_path.replace(os.sep, "/")
+            encoded_parts = [urllib.parse.quote(part) for part in clean_rel.split("/")]
+            url_path = "app/static/docs/" + "/".join(encoded_parts)
+            return url_path, file_path
+        elif "extracted_pages" in file_path:
+            clean_rel = os.path.basename(file_path)
+            url_path = "app/static/extracted_pages/" + urllib.parse.quote(clean_rel)
+            return url_path, file_path
+        return None, file_path
     except Exception as e:
         logger.warning(f"Error computing static URL for {file_path}: {e}")
         return None, file_path
@@ -183,6 +196,23 @@ def get_document_download_info(source_filename: str, page_num: int = None, manif
     if not source_filename or source_filename == "Unknown Document":
         return None, None, False, None
 
+    extracted_dir = os.path.join(PROJECT_ROOT, "static", "extracted_pages")
+    base_name = os.path.splitext(os.path.basename(source_filename))[0]
+
+    # 1. First check if single extracted page already exists in static/extracted_pages/
+    cand_base_names = [base_name]
+    if base_name.lower() in ("orders", "notices_and_orders", "orders_11zon"):
+        cand_base_names = ["Orders", "orders", "Notices_and_orders", base_name]
+
+    if page_num and page_num > 0:
+        for c_base in cand_base_names:
+            page_filename = f"{c_base}_page_{page_num}.pdf"
+            page_filepath = os.path.join(extracted_dir, page_filename)
+            if os.path.exists(page_filepath):
+                page_url = f"app/static/extracted_pages/{urllib.parse.quote(page_filename)}"
+                return page_url, page_filename, True, page_filepath
+
+    # 2. Otherwise resolve parent file
     file_path = resolve_document_file_path(source_filename, manifest)
     if not file_path or not os.path.exists(file_path):
         return None, None, False, None
@@ -190,9 +220,7 @@ def get_document_download_info(source_filename: str, page_num: int = None, manif
     # Check if document is a PDF and a specific page is cited
     is_pdf = source_filename.lower().endswith(".pdf") or file_path.lower().endswith(".pdf")
     if is_pdf and page_num and page_num > 0:
-        extracted_dir = os.path.join(PROJECT_ROOT, "static", "extracted_pages")
         os.makedirs(extracted_dir, exist_ok=True)
-        base_name = os.path.splitext(os.path.basename(file_path))[0]
         page_filename = f"{base_name}_page_{page_num}.pdf"
         page_filepath = os.path.join(extracted_dir, page_filename)
 
@@ -336,6 +364,12 @@ def render_citations_and_links(sources: list, manifest: dict, key_prefix: str = 
                         f'<a href="{dl_url}" download="{dl_filename}" target="_blank" '
                         f'style="display: block; text-align: center; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 0.84rem; text-decoration: none; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);">'
                         f'📥 Download File</a>',
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(
+                        '<div style="text-align: center; color: #94a3b8; font-size: 0.76rem; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 8px;">'
+                        '🛡️ ISO Master Record</div>',
                         unsafe_allow_html=True
                     )
 
