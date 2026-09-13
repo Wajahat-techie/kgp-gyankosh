@@ -768,35 +768,38 @@ def main():
             active_session["memory"].clear()
             st.rerun()
 
-        # Technical Documentation & Reports Section
+        # Technical Documentation, Reports & Presentation Section
         reports_dir = os.path.join(PROJECT_ROOT, "docs", "reports")
+        docs_dir = os.path.join(PROJECT_ROOT, "docs")
         report_specs = [
-            ("🏛️ System Architecture PDF", "KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf"),
-            ("📖 Line-by-Line Code Doc PDF", "KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"),
-            ("📘 Complete Documentation PDF", "KGP_Gyankosh_Complete_Documentation.pdf"),
+            ("📊 Capstone Presentation (PPTX)", os.path.join(docs_dir, "KGP_Gyankosh_Presentation.pptx"), "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
+            ("📝 Presentation Notes (DOCX)", os.path.join(docs_dir, "KGP_Gyankosh_Presentation_Notes.docx"), "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+            ("🏛️ System Architecture PDF", os.path.join(reports_dir, "KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf"), "application/pdf"),
+            ("📖 Line-by-Line Code Doc PDF", os.path.join(reports_dir, "KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"), "application/pdf"),
+            ("📘 Complete Documentation PDF", os.path.join(reports_dir, "KGP_Gyankosh_Complete_Documentation.pdf"), "application/pdf"),
         ]
         available_reports = [
-            (label, fname, os.path.join(reports_dir, fname))
-            for label, fname in report_specs
-            if os.path.exists(os.path.join(reports_dir, fname))
+            (label, os.path.basename(r_path), r_path, mime)
+            for label, r_path, mime in report_specs
+            if os.path.exists(r_path)
         ]
         if available_reports:
-            with st.expander("📑 System Documentation Reports", expanded=False):
-                st.markdown("<div style='font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px;'>Download publication-ready technical reports:</div>", unsafe_allow_html=True)
-                for r_idx, (r_label, r_fname, r_path) in enumerate(available_reports):
+            with st.expander("📑 Reports & Presentation Deck", expanded=False):
+                st.markdown("<div style='font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px;'>Download project slides and technical reports:</div>", unsafe_allow_html=True)
+                for r_idx, (r_label, r_fname, r_path, r_mime) in enumerate(available_reports):
                     try:
                         with open(r_path, "rb") as rf:
-                            pdf_bytes = rf.read()
+                            file_bytes = rf.read()
                         st.download_button(
                             label=f"📥 {r_label}",
-                            data=pdf_bytes,
+                            data=file_bytes,
                             file_name=r_fname,
-                            mime="application/pdf",
+                            mime=r_mime,
                             key=f"sidebar_report_dl_{r_idx}",
                             use_container_width=True
                         )
                     except Exception as r_err:
-                        logger.warning(f"Could not load report {r_fname}: {r_err}")
+                        logger.warning(f"Could not load file {r_fname}: {r_err}")
 
         # Developer Attribution Card in Sidebar
         st.divider()
