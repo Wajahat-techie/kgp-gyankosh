@@ -575,6 +575,15 @@ def main():
                 st.error("❌ Invalid credentials. Please check your username and password.")
             elif auth_status is None:
                 st.caption("🔒 Please authenticate with your authorized college administrative credentials.")
+
+        st.markdown(
+            """
+            <div class="app-bottom-credit-bar" style="margin-top: 2.5rem;">
+                🏛️ <strong>KGP Gyankosh</strong> • Administrative Intelligence Assistant • Designed and Developed by <strong>Wajahat</strong> • 📞 <strong>9906457756</strong>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         return
 
     # --------------------------------------------------------------------------
@@ -791,7 +800,7 @@ def main():
             """
             <div class="developer-credit-card">
                 <div class="developer-credit-title">SYSTEM ARCHITECT & DEVELOPER</div>
-                <div class="developer-credit-name">Designed & Developed by Wajahat</div>
+                <div class="developer-credit-name">Designed and Developed by Wajahat</div>
                 <div class="developer-credit-phone">📞 9906457756</div>
             </div>
             """,
@@ -1032,7 +1041,7 @@ def main():
     st.markdown(
         """
         <div class="app-bottom-credit-bar">
-            🏛️ <strong>KGP Gyankosh</strong> • Enterprise Knowledge Assistant • Designed and Developed by <strong>Wajahat - 9906457756</strong>
+            🏛️ <strong>KGP Gyankosh</strong> • Administrative Intelligence Assistant • Designed and Developed by <strong>Wajahat</strong> • 📞 <strong>9906457756</strong>
         </div>
         """,
         unsafe_allow_html=True
