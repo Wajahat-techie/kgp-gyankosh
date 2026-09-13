@@ -171,15 +171,17 @@ def get_document_url_and_path(source_filename: str, manifest: dict = None):
 
     try:
         data_root = os.path.abspath(os.path.join(PROJECT_ROOT, "data"))
-        if file_path.startswith(data_root):
+        static_root = os.path.abspath(os.path.join(PROJECT_ROOT, "static"))
+        
+        if file_path.startswith(static_root):
+            rel_path = os.path.relpath(file_path, static_root)
+            clean_rel = rel_path.replace(os.sep, "/")
+            url_path = "/app/static/" + "/".join(urllib.parse.quote(p) for p in clean_rel.split("/"))
+            return url_path, file_path
+        elif file_path.startswith(data_root):
             rel_path = os.path.relpath(file_path, data_root)
             clean_rel = rel_path.replace(os.sep, "/")
-            encoded_parts = [urllib.parse.quote(part) for part in clean_rel.split("/")]
-            url_path = "app/static/docs/" + "/".join(encoded_parts)
-            return url_path, file_path
-        elif "extracted_pages" in file_path:
-            clean_rel = os.path.basename(file_path)
-            url_path = "app/static/extracted_pages/" + urllib.parse.quote(clean_rel)
+            url_path = "/app/static/docs/" + "/".join(urllib.parse.quote(p) for p in clean_rel.split("/"))
             return url_path, file_path
         return None, file_path
     except Exception as e:
@@ -209,13 +211,20 @@ def get_document_download_info(source_filename: str, page_num: int = None, manif
             page_filename = f"{c_base}_page_{page_num}.pdf"
             page_filepath = os.path.join(extracted_dir, page_filename)
             if os.path.exists(page_filepath):
-                page_url = f"app/static/extracted_pages/{urllib.parse.quote(page_filename)}"
+                page_url = f"/app/static/extracted_pages/{urllib.parse.quote(page_filename)}"
                 return page_url, page_filename, True, page_filepath
 
-    # 2. Otherwise resolve parent file
+    # 2. Check in static/docs/
+    for sub in ["word", "pdf", ""]:
+        cand_static = os.path.join(PROJECT_ROOT, "static", "docs", sub, os.path.basename(source_filename))
+        if os.path.exists(cand_static):
+            rel = os.path.relpath(cand_static, os.path.join(PROJECT_ROOT, "static")).replace(os.sep, "/")
+            return f"/app/static/{rel}", os.path.basename(cand_static), False, cand_static
+
+    # 3. Otherwise resolve parent file in data/
     file_path = resolve_document_file_path(source_filename, manifest)
     if not file_path or not os.path.exists(file_path):
-        return None, None, False, None
+        return None, os.path.basename(source_filename), False, None
 
     # Check if document is a PDF and a specific page is cited
     is_pdf = source_filename.lower().endswith(".pdf") or file_path.lower().endswith(".pdf")
@@ -238,7 +247,7 @@ def get_document_download_info(source_filename: str, page_num: int = None, manif
                 logger.warning(f"Error extracting page {page_num} from {file_path}: {err}")
 
         if os.path.exists(page_filepath):
-            page_url = f"app/static/extracted_pages/{urllib.parse.quote(page_filename)}"
+            page_url = f"/app/static/extracted_pages/{urllib.parse.quote(page_filename)}"
             return page_url, page_filename, True, page_filepath
 
     doc_url, _ = get_document_url_and_path(source_filename, manifest)
@@ -248,46 +257,56 @@ def get_document_download_info(source_filename: str, page_num: int = None, manif
 def linkify_answer_citations(answer_text: str, manifest: dict = None) -> str:
     """
     Cleans and transforms document citations in the synthesized LLM answer text into
-    responsive, interactive download badges with icons.
+    responsive, interactive download badges with direct links.
     """
     if not answer_text:
         return answer_text
 
-    # Match bracketed [doc.pdf, Page X], parenthetical (doc.pdf, Page X), or raw doc.pdf (Page X) citations
-    patterns = [
-        r'\[\s*([a-zA-Z0-9_\-\s\(\)]+?\.(?:docx|pdf))\s*(?:,\s*Page\s*(\d+))?\s*\]',
-        r'\(\s*([a-zA-Z0-9_\-\s\(\)]+?\.(?:docx|pdf))\s*(?:,\s*Page\s*(\d+)|\s*Page\s*(\d+))?\s*\)',
-        r'(?:\b)([a-zA-Z0-9_\-]+\.(?:docx|pdf))\s*(?:\(Page\s*(\d+)\)|,\s*Page\s*(\d+)|\s*Page\s*(\d+))'
-    ]
+    def _make_badge(doc_name: str, page_num_str: str = None):
+        doc_name = doc_name.strip()
+        page_num = int(page_num_str) if page_num_str and page_num_str.isdigit() else (1 if doc_name.lower().endswith(".pdf") else None)
+        page_suffix = f" (Page {page_num})" if (page_num and doc_name.lower().endswith(".pdf")) else ""
 
-    def _make_badge(match, is_pattern_3=False):
-        groups = match.groups()
-        doc_name = groups[0].strip() if groups[0] else ""
-        page_num_str = None
-        for g in groups[1:]:
-            if g and g.isdigit():
-                page_num_str = g
-                break
-        page_num = int(page_num_str) if page_num_str else 1
-        page_suffix = f" (Page {page_num})" if page_num_str else ""
-
-        dl_url, dl_filename, is_page, _ = get_document_download_info(doc_name, page_num, manifest)
+        dl_url, dl_filename, is_page, actual_path = get_document_download_info(doc_name, page_num, manifest)
         icon = "📕" if doc_name.lower().endswith(".pdf") else "📘"
 
-        if dl_url:
+        if dl_url or (actual_path and os.path.exists(actual_path)):
+            effective_url = dl_url or f"/app/static/docs/{urllib.parse.quote(dl_filename)}"
             badge_title = f"Click to download Page {page_num} of {doc_name}" if is_page else f"Click to download {doc_name}"
             return (
-                f'<a href="{dl_url}" download="{dl_filename}" target="_blank" '
+                f'<a href="{effective_url}" download="{dl_filename}" target="_blank" '
                 f'style="display: inline-flex; align-items: center; gap: 4px; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); padding: 3px 10px; border-radius: 8px; margin: 2px 2px; text-decoration: none; cursor: pointer; transition: all 0.2s ease; vertical-align: middle;" '
                 f'title="{badge_title}">'
                 f'{icon} {doc_name}{page_suffix} <span style="font-size: 0.75rem; color: #38bdf8;">📥</span></a>'
             )
         return f'<span style="display: inline-flex; align-items: center; gap: 4px; color: #38bdf8; font-weight: 700; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 10px; border-radius: 8px; margin: 2px 2px; vertical-align: middle;">{icon} {doc_name}{page_suffix}</span>'
 
-    # Apply bracketed pattern first
-    answer_text = re.sub(patterns[0], lambda m: _make_badge(m), answer_text, flags=re.IGNORECASE)
-    # Apply parenthetical pattern
-    answer_text = re.sub(patterns[1], lambda m: _make_badge(m), answer_text, flags=re.IGNORECASE)
+    # Pattern 1: [doc.pdf, Page 14], [doc.pdf (Page 14)], [doc.docx]
+    def repl_p1(m):
+        doc = m.group(1)
+        p = m.group(2) or m.group(3) or m.group(4) or m.group(5)
+        return _make_badge(doc, p)
+
+    p1 = r'\[\s*([a-zA-Z0-9_\-\s\(\)]+?\.(?:docx|pdf|txt))\s*(?:,\s*(?:Page|p\.?)\s*(\d+)|\s*\((?:Page|p\.?)\s*(\d+)\)|\s*-\s*(?:Page|p\.?)\s*(\d+)|\s*(?:Page|p\.?)\s*(\d+))?\s*\]'
+    answer_text = re.sub(p1, repl_p1, answer_text, flags=re.IGNORECASE)
+
+    # Pattern 2: (doc.pdf, Page 14), (doc.pdf - Page 14)
+    def repl_p2(m):
+        doc = m.group(1)
+        p = m.group(2) or m.group(3) or m.group(4)
+        return _make_badge(doc, p)
+
+    p2 = r'\(\s*([a-zA-Z0-9_\-\s]+?\.(?:docx|pdf|txt))\s*(?:,\s*(?:Page|p\.?)\s*(\d+)|\s*-\s*(?:Page|p\.?)\s*(\d+)|\s*(?:Page|p\.?)\s*(\d+))?\s*\)'
+    answer_text = re.sub(p2, repl_p2, answer_text, flags=re.IGNORECASE)
+
+    # Pattern 3: Raw filename with Page (e.g. Orders.pdf (Page 16), Orders.pdf, Page 16, Orders.pdf - Page 16)
+    def repl_p3(m):
+        doc = m.group(1)
+        p = m.group(2) or m.group(3) or m.group(4) or m.group(5) or m.group(6)
+        return _make_badge(doc, p)
+
+    p3 = r'(?<!href=")(?<!/)\b([a-zA-Z0-9_\-]+\.(?:docx|pdf))\s*(?:\((?:Page|p\.?)\s*(\d+)\)|,\s*(?:Page|p\.?)\s*(\d+)|\s*-\s*(?:Page|p\.?)\s*(\d+)|\s*:\s*(?:Page|p\.?)\s*(\d+)|\s*(?:Page|p\.?)\s*(\d+))'
+    answer_text = re.sub(p3, repl_p3, answer_text, flags=re.IGNORECASE)
 
     # Style college mentions in bold with beautiful typography
     college_regex = r'(?:\*{2})?Kashmir\s+(?:Govt\.?|Government)\s+Polytechnic\s+College(?:,?\s*Srinagar)?(?:\*{2})?'
@@ -337,36 +356,39 @@ def render_citations_and_links(sources: list, manifest: dict, key_prefix: str = 
                 unsafe_allow_html=True
             )
 
-            col_excerpt, col_action = st.columns([3, 1])
+            col_excerpt, col_action = st.columns([2.8, 1.2])
             with col_excerpt:
                 if src.get("excerpt"):
                     st.caption(f"🔎 **Excerpt:** _{src.get('excerpt')[:280]}..._")
 
             with col_action:
+                btn_rendered = False
                 if actual_path and os.path.exists(actual_path):
                     try:
                         with open(actual_path, "rb") as f_doc:
                             file_bytes = f_doc.read()
                         mime_type = "application/pdf" if dl_filename.endswith(".pdf") else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                        btn_label = f"📥 Download Page {page_num}" if is_page else "📥 Download Order"
+                        btn_label = f"📥 Download Page {page_num}" if is_page else "📥 Download File"
                         st.download_button(
                             label=btn_label,
                             data=file_bytes,
                             file_name=dl_filename,
                             mime=mime_type,
-                            key=f"dl_{key_prefix}_{idx}_{page_num}",
+                            key=f"dl_{key_prefix}_{idx}_{page_num}_{hash(src_name) % 10000}",
                             use_container_width=True
                         )
+                        btn_rendered = True
                     except Exception as ex:
                         logger.warning(f"Could not prepare download for {actual_path}: {ex}")
-                elif dl_url:
+
+                if not btn_rendered and dl_url:
                     st.markdown(
                         f'<a href="{dl_url}" download="{dl_filename}" target="_blank" '
                         f'style="display: block; text-align: center; background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #ffffff; padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 0.84rem; text-decoration: none; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);">'
                         f'📥 Download File</a>',
                         unsafe_allow_html=True
                     )
-                else:
+                elif not btn_rendered:
                     st.markdown(
                         '<div style="text-align: center; color: #94a3b8; font-size: 0.76rem; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 8px;">'
                         '🛡️ ISO Master Record</div>',
