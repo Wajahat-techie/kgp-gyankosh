@@ -490,7 +490,7 @@ Open `http://localhost:8501` in your browser and log in with any demo account (e
 
 ## 18. License & Institutional Attribution
 
-This capstone project is developed as part of the **IIT Patna — Executive M.Tech / Certification in Generative AI & Agentic AI for Developers**.  
+This capstone project is developed as part of the **IIT Patna — Certification in Generative AI & Agentic AI for Developers**.  
 Institutional document records and administrative context: **Kashmir Government Polytechnic College, Srinagar**, Department of Skill Development, Government of Jammu & Kashmir.
 
 Released under the [MIT License](LICENSE).
