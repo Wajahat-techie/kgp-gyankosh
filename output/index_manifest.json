@@ -1,61 +1,61 @@
 {
   "indexed_files": {
     "Notices_and_orders.pdf": {
-      "file_hash": "e475f130e21d271a3ae7f68bf3a1c231",
+      "file_hash": "5c20c959d553d9312eafd2c78b43e190",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\pdf\\Notices_and_orders.pdf",
       "chunks_count": 127,
-      "last_indexed_at": "2026-09-13T20:06:02.320548"
+      "last_indexed_at": "2026-09-13T20:33:21.904859"
     },
     "ABC ID Notice.docx": {
       "file_hash": "36ab4913ae17753ed2dc371854761572",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\ABC ID Notice.docx",
       "chunks_count": 8,
-      "last_indexed_at": "2026-09-13T20:06:02.686092"
+      "last_indexed_at": "2026-09-13T20:33:22.625702"
     },
     "Admission PMKVY 4.0.docx": {
       "file_hash": "14715cdd2e3fce85c29fab794b3387ff",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\Admission PMKVY 4.0.docx",
       "chunks_count": 4,
-      "last_indexed_at": "2026-09-13T20:06:02.719491"
+      "last_indexed_at": "2026-09-13T20:33:22.712678"
     },
     "Advertisement Guest Faculty KGP 2025.docx": {
       "file_hash": "f1d53fa5b7c324de40831fd939ca50d0",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\Advertisement Guest Faculty KGP 2025.docx",
       "chunks_count": 10,
-      "last_indexed_at": "2026-09-13T20:06:02.771185"
+      "last_indexed_at": "2026-09-13T20:33:22.882537"
     },
     "Anti Ragging Notice.docx": {
       "file_hash": "6c04dcf1301f64463825cc0b214b1a81",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\Anti Ragging Notice.docx",
       "chunks_count": 3,
-      "last_indexed_at": "2026-09-13T20:06:02.805938"
+      "last_indexed_at": "2026-09-13T20:33:22.984032"
     },
     "NOTICE Classwork mj26.docx": {
       "file_hash": "898c78e05cfe5e732634b8dfa4598468",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\NOTICE Classwork mj26.docx",
       "chunks_count": 2,
-      "last_indexed_at": "2026-09-13T20:06:02.841538"
+      "last_indexed_at": "2026-09-13T20:33:23.077932"
     },
     "NOTICE Classwork.docx": {
       "file_hash": "27c04e760f63af9fd9690e3226231bd1",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\NOTICE Classwork.docx",
       "chunks_count": 17,
-      "last_indexed_at": "2026-09-13T20:06:02.938762"
+      "last_indexed_at": "2026-09-13T20:33:23.390884"
     },
     "NOTICE Classwork2.docx": {
       "file_hash": "d9797a0ad2a84b6fb7339e3cd5bd66e5",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\NOTICE Classwork2.docx",
       "chunks_count": 2,
-      "last_indexed_at": "2026-09-13T20:06:02.966060"
+      "last_indexed_at": "2026-09-13T20:33:23.459722"
     },
     "Orders.pdf": {
       "file_hash": "cc00258d1e925d71d95515b7984c0057",
       "file_path": "C:\\Users\\Electronics\\Desktop\\Capstone\\kgp-gyankosh\\data\\word\\Orders.pdf",
       "chunks_count": 365,
-      "last_indexed_at": "2026-09-13T20:06:03.197869"
+      "last_indexed_at": "2026-09-13T20:33:24.482746"
     }
   },
   "total_chunks": 538,
   "embedding_model": "all-MiniLM-L6-v2",
-  "last_updated_at": "2026-09-13T20:06:31.003494"
+  "last_updated_at": "2026-09-13T20:34:24.567562"
 }
