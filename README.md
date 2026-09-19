@@ -6,20 +6,28 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kgp-gyankosh.streamlit.app/)
 [![Tests](https://img.shields.io/badge/pytest-26%20passed-success)](tests/)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue)](requirements.txt)
+[![Official Records](https://img.shields.io/badge/records-1%2C158%20Docs%20%7C%208%2C166%20Clauses-green)](output/index_manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-- **Live Cloud Deployment**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
-- **GitHub Repository**: [https://github.com/Wajahat-techie/kgp-gyankosh](https://github.com/Wajahat-techie/kgp-gyankosh)
+- 🌐 **Live Web Application**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
+- 💻 **GitHub Repository**: [https://github.com/Wajahat-techie/kgp-gyankosh](https://github.com/Wajahat-techie/kgp-gyankosh)
+- 📊 **Presentation Slide Deck**: [Download PPTX (17.8 MB)](docs/KGP_Gyankosh_Presentation.pptx) | [Download Presentation Notes (DOCX)](docs/KGP_Gyankosh_Presentation_Notes.docx)
+- 📑 **Technical Reports**: [System Architecture & Files Reference PDF](docs/reports/KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf) | [Line-by-Line Code Documentation PDF](docs/reports/KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf)
+
+> [!IMPORTANT]
+> **Quick Setup Guide**:
+> - **Cloud Mode (Fastest)**: Copy `.env.example` to `.env` and configure your **Google Gemini API Key** (`GOOGLE_API_KEY=...`) or **OpenAI API Key** (`OPENAI_API_KEY=...`).
+> - **100% Offline / Local Mode (Zero Cloud Cost & Complete Privacy)**: Run `ollama run llama3.1` locally, and set `LLM_PROVIDER=ollama` in `.env`. No external API keys required!
 
 ---
 
 ## 1. Project Overview & Institutional Context
 
 ### Institutional Background
-**Kashmir Government Polytechnic (KGP) College, Srinagar** (established in 1958 under the Department of Skill Development, Government of Jammu & Kashmir) is one of the oldest technical diploma institutions in the region. The administrative offices—including the Principal's Secretariat, Academic Section, Examination Wing, and Departmental Heads—handle thousands of official records every academic year:
+**Kashmir Government Polytechnic (KGP) College, Srinagar** is one of the premier technical diploma institutions in the region. The administrative offices—including the Principal's Secretariat, Academic Section, Examination Wing, and Departmental Heads—handle thousands of official records every academic year:
 - Government orders, institutional circulars, and departmental sanction notifications.
 - J&K State Board of Technical Education (SBOTE) notifications, examination schedules, and syllabus revisions.
-- Student attendance policies, academic guidelines, and admission rosters.
+- Student attendance policies, admission rosters, and scholarship guidelines.
 - Faculty service records, committee notifications, and civil service leave sanctions governed by J&K Civil Service Regulations (CSR).
 
 ### The Core Problem Solved
@@ -33,7 +41,7 @@ Administrative staff and academic counselors routinely spend hours manually sear
 
 ---
 
-## 2. Project Objectives & System Scope
+## 2. Project Objectives & Architectural Scope
 
 1. **Comprehensive Multi-Format Document Ingestion**:
    - Automatically parse, OCR, and index official records across PDF, DOCX, and scanned image formats.
@@ -42,7 +50,7 @@ Administrative staff and academic counselors routinely spend hours manually sear
 3. **Dual Deployment Flexibility (Zero Vendor Lock-In)**:
    - **Online Cloud**: Hosted live on Streamlit Cloud using Google Gemini Flash or OpenAI GPT-4o-mini for fast cloud reasoning.
    - **Offline Local**: Self-hosted via Ollama with Llama 3.1 (8B) for zero cloud cost and 100% on-campus data privacy.
-4. **Strict Grounding & Zero-Hallucination Policy**:
+4. **Strict Grounding & Anti-Hallucination Policy**:
    - Zero tolerance for fabricated rules; every response must cite the verified document name and page number, with 1-click downloads of the original file.
 5. **Role-Based Administrative Security**:
    - Salted bcrypt password authentication across 4 administrative tiers (Admin, Academic, Exam, Faculty).
@@ -106,7 +114,7 @@ The system is cleanly separated into two distinct stages: an **Offline Ingestion
                   │
                   ▼
      ┌─────────────────────────┐
-     │   Role-Based Login      │  Verifies bcrypt salted hash against config/auth_config.yaml
+     │    Role-Based Login     │  Verifies salted bcrypt hash against config/auth_config.yaml
      └─────────────────────────┘
                   │ (Authenticated: admin, academic, exam, faculty)
                   ▼
@@ -114,7 +122,7 @@ The system is cleanly separated into two distinct stages: an **Offline Ingestion
                   │
                   ▼
      ┌─────────────────────────┐
-     │  Conversational Memory  │  Resolves pronouns & anaphora into a standalone search query
+     │  Conversational Memory  │  Resolves pronouns & ellipsis into standalone search queries
      └─────────────────────────┘
                   │
                   ▼
@@ -140,9 +148,9 @@ The system is cleanly separated into two distinct stages: an **Offline Ingestion
                                                    ▼ (Top-4 Highly Relevant Passages)
      ┌─────────────────────────────────────────────────────────────────────────────────────────┐
      │                                SWITCHABLE LLM BACKEND                                   │
-     │       [Google Gemini Flash] (Default) | [Ollama Llama 3.1] | [OpenAI GPT-4o-mini]       │
+     │        [Google Gemini Flash] (Default) | [Ollama Llama 3.1] | [OpenAI GPT-4o-mini]       │
      │                                                                                         │
-     │   System Prompt Constraints:                                                            │
+     │   System Prompt Guardrails:                                                             │
      │   1. Ground answers strictly on retrieved official text.                                │
      │   2. Refuse out-of-domain queries ("I could not find this in official documents").      │
      │   3. Include exact source filename and page numbers for every stated fact.              │
@@ -187,23 +195,21 @@ The system is cleanly separated into two distinct stages: an **Offline Ingestion
 
 ---
 
-## 4. Key Features & Functionality
+## 5. Core Retrieval & RAG Innovations
 
 ### 1. Dual Operational Modes
-The application provides two distinct operational modes accessible from the sidebar radio toggle:
-- **College Records (RAG Mode)**: Queries run through the full hybrid retrieval and reranking pipeline across **1,158 official documents** (8,166 clauses). Answers are grounded strictly in retrieved text with mandatory document and page citations. Out-of-scope questions trigger an anti-hallucination refusal.
-- **General AI (Direct LLM Mode)**: Bypasses the document index and acts as an administrative drafting assistant. Staff can draft official government circulars, write formal memos, format emails according to J&K civil service tone, or ask general polytechnic academic and technical questions.
+- **College Records (Strict RAG Mode)**: Queries execute through the full hybrid retrieval and reranking pipeline across **1,158 official documents** (8,166 clauses). Answers are grounded strictly in retrieved text with mandatory citations. Out-of-scope questions trigger an anti-hallucination refusal.
+- **General AI (Direct LLM Mode)**: Bypasses the document index and acts as an administrative drafting assistant. Staff can draft official government circulars, write formal memos, format emails according to administrative tone, or ask general engineering questions.
 
-### 2. Multi-Backend LLM Selector
-Users can dynamically switch between three LLM backends in the sidebar without restarting the server:
-- **Google Gemini** (`gemini-3.5-flash-lite` / `gemini-1.5-flash`): High-speed cloud reasoning with generous free tier allowances.
+### 2. Multi-Backend LLM Selector (No Vendor Lock-In)
+- **Google Gemini** (`gemini-2.5-flash` / `gemini-1.5-flash`): High-speed cloud reasoning; default for online web deployment.
 - **Local Ollama** (`llama3.1:latest`): Completely offline, private, zero-token-fee inference running locally on the workstation or campus server.
 - **OpenAI** (`gpt-4o-mini`): High-accuracy cloud fallback.
 
-### 3. Dense-Sparse Hybrid Search with RRF
+### 3. Dense-Sparse Hybrid Search with Reciprocal Rank Fusion (RRF)
 Neither vector search nor keyword search alone is sufficient for administrative documents:
-- Dense vector search (`all-MiniLM-L6-v2`) understands semantic concepts (e.g. *"financial help for school fees"* matches *"Child Education Allowance"*).
-- Sparse search (BM25) ensures that exact order reference numbers (e.g. `Order No: 12 of 2026`) and institutional abbreviations (`SBOTE`, `NSS`, `JKBOSE`) are never missed.
+- Dense vector search (`all-MiniLM-L6-v2`) understands semantic concepts (e.g. *"fee concession and scholarship rules"* matches *"Tuition Fee Waiver (TFW) Scheme"*).
+- Sparse search (BM25) ensures that exact order reference numbers (e.g. `Order No: 02/2026`, `KGP/ADM/2026/104`) and institutional abbreviations (`SBOTE`, `NSS`, `JKBOSE`) are never missed.
 - The two result lists are merged using **Reciprocal Rank Fusion (RRF)**:
   $$\text{RRF Score}(d) = \sum_{m \in \{\text{dense}, \text{sparse}\}} \frac{w_m}{60 + \text{rank}_m(d)}$$
 
@@ -216,18 +222,15 @@ When staff ask follow-up questions (e.g., Turn 1: *"Who is the Incharge of Compu
 ### 6. Interactive Citation & Direct Document Download Cards
 For every retrieved source, the interface renders:
 - An expandable citation card showing the document title, page number, match score, and verified text excerpt.
-- A **direct download button** (`📥 Download Page X` or `📥 Download Order`) allowing staff to download the exact single-page PDF slice or original document directly from `static/docs/` or `static/extracted_pages/`.
-
-### 7. Incremental Indexing with MD5 Manifest
-Running `build_index.py` does not re-process unchanged documents. It checks MD5 file hashes stored in `output/index_manifest.json`, processing only newly added or modified files to keep indexing fast.
+- A **direct download button** (`📥 Download Page X` or `📥 Download Order`) allowing staff to download the exact single-page PDF slice or original document directly.
 
 ---
 
-## 5. Repository Structure
+## 6. Repository File Structure
 
 ```
 kgp-gyankosh/
-├── README.md                           # Comprehensive documentation and capstone report
+├── README.md                           # Comprehensive project report and system manual
 ├── PROJECT_ARCHITECTURE_AND_FEATURES.md# Deep architectural and implementation reference
 ├── requirements.txt                    # Python dependencies (with PyTorch CPU wheel)
 ├── pytest.ini                          # Pytest configuration
@@ -242,8 +245,8 @@ kgp-gyankosh/
 │   └── auth_config.yaml                # Active credentials file (git-ignored)
 ├── data/
 │   ├── sample_notices/                 # Core test administrative notices
-│   ├── pdf/                            # Official scanned and digital PDF circulars
-│   └── word/                           # Official Microsoft Word (.docx) circulars
+│   ├── pdf/                            # Scanned and digital PDF circulars
+│   └── word/                           # Microsoft Word (.docx) circulars
 ├── src/
 │   ├── __init__.py
 │   ├── auth/
@@ -270,7 +273,7 @@ kgp-gyankosh/
 │       └── client.py                   # LLM factory (Gemini, Ollama, OpenAI) with anti-hallucination prompt
 ├── static/
 │   ├── style.css                       # Enterprise dark theme and responsive layout styles
-│   ├── campus_bg.jpg                   # KGP campus photograph background
+│   ├── campus_bg.jpg                   # Visual background image
 │   └── docs/                           # Served static files for citation downloads
 ├── tests/
 │   ├── __init__.py
@@ -295,13 +298,26 @@ kgp-gyankosh/
 
 ---
 
-## 6. Setup & Installation Guide
+## 7. Role-Based Access Control (RBAC) & Security
+
+Authentication is managed via `streamlit-authenticator` using salted **bcrypt password hashes** defined in `config/auth_config.yaml`:
+
+| Role | Username | Full Name / Scope | Default Demo Password |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin_kgp` | Principal / Head of Administration | `KgpAdmin@2026` |
+| **Staff** | `clerk_academic` | Academic Section In-Charge | `Academic@2026` |
+| **Staff** | `exam_wing` | Examination Wing Controller | `Exam@2026` |
+| **Faculty** | `hod_polytechnic` | Head of Department / Senior Faculty | `Faculty@2026` |
+
+---
+
+## 8. Setup & Installation Guide
 
 ### Prerequisites
 - **Python**: Version 3.10, 3.11, 3.12, or 3.14.
 - **Git**: Installed and available in terminal PATH.
-- **Hardware**: Any modern multi-core CPU and 4 GB RAM. (A GPU is not required; PyTorch CPU and FAISS run efficiently).
-- **OCR**: Pure-Python RapidOCR runs out-of-the-box via ONNX. Installing system Tesseract is completely optional.
+- **Hardware**: Any modern multi-core CPU and 4 GB RAM. (No dedicated GPU required).
+- **OCR**: Pure-Python RapidOCR runs out-of-the-box via ONNX.
 - **Optional Local LLM**: If using Ollama locally, install [Ollama](https://ollama.com/) and run `ollama pull llama3.1`.
 
 ### Step 1: Clone the Repository
@@ -324,21 +340,20 @@ source venv/bin/activate
 ```
 
 ### Step 3: Install Dependencies
-The `requirements.txt` file is pre-configured with the PyTorch CPU extra-index URL to ensure clean, fast installation:
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Step 4: Configure Environment Variables
-Copy the `.env.example` template to `.env`:
+Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
 ```
-Open `.env` and set your desired configuration. For example, to use Google Gemini:
+Set your preferred configuration in `.env`:
 ```env
 LLM_PROVIDER=google
 GOOGLE_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-3.5-flash-lite
+GEMINI_MODEL=gemini-2.5-flash
 EMBEDDING_PROVIDER=sentence-transformers
 EMBEDDING_MODEL_NAME=all-MiniLM-L6-v2
 ```
@@ -349,24 +364,26 @@ Copy `config/auth_config.yaml.example` to `config/auth_config.yaml`:
 cp config/auth_config.yaml.example config/auth_config.yaml
 ```
 
-The system comes pre-configured with four test administrative accounts (all passwords hashed with bcrypt):
+### Step 6: Verify System with Automated Tests
+```bash
+pytest -v
+```
 
-| Role / Designation | Username | Demo Password | Scope & Department |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin_kgp` | Principal / Head of Administration | `KgpAdmin@2026` |
-| **Staff** | `clerk_academic` | Academic Section In-Charge | `Academic@2026` |
-| **Staff** | `exam_wing` | Examination Wing Controller | `Exam@2026` |
-| **Faculty** | `hod_polytechnic` | Head of Department / Senior Faculty | `Faculty@2026` |
+### Step 7: Launch Interactive Web Application
+```bash
+streamlit run app.py
+```
+Open `http://localhost:8501` and log in with any demo credentials above.
 
 ---
 
-## 9. User Interface & Administrative Design System
+## 9. User Interface & Design System
 
-- **Institutional Styling**: Modern dark glassmorphic design system (`static/style.css`) incorporating official Jammu & Kashmir Government crest and college branding.
+- **Glassmorphism Design**: Modern dark glassmorphic design system (`static/style.css`) with institutional accent highlights.
 - **Typography**: Google Fonts (`Outfit` for headings and `Plus Jakarta Sans` for body text).
-- **Live Metric Badge**: Real-time status counter displaying the number of active indexed documents and searchable clauses.
+- **Live Metric Badge**: Real-time status counter displaying active indexed documents and searchable clauses.
 - **Interactive Suggestion Chips**: Quick-click query prompts for common administrative inquiries.
-- **Responsive Citation Cards**: Structured source cards showing verified document titles, page numbers, match scores, excerpts, and download buttons.
+- **Responsive Citation Cards**: Structured source cards showing verified document titles, page numbers, match scores, excerpts, and 1-click download buttons.
 - **Non-Overlapping Bottom Dock**: Floating query input bar with auto-scroll script.
 
 ---
@@ -379,13 +396,13 @@ The repository includes **26 automated unit and integration tests** built with `
 pytest -v
 ```
 
-### Test Coverage
+### Test Suite Coverage
 - `tests/test_chunker.py` (7 tests): Text chunk limits, overlap consistency, and deterministic chunk ID assignment (`source#pX_cY`).
 - `tests/test_embeddings.py` (3 tests): SentenceTransformers embedding initialization, dimension validation (384), and provider fallback logic.
 - `tests/test_memory.py` (7 tests): Multi-turn sliding window memory, conversation clearing, and LLM-assisted query reformulation.
 - `tests/test_retrieval.py` (9 tests): Alphanumeric BM25 tokenization, Reciprocal Rank Fusion weights, and Cross-Encoder reranker fallbacks.
 
-**Status**: 26 passed in ~0.86s across Python 3.10 through 3.14.
+**Status**: 26 passed in ~1.58s across Python 3.10 through 3.14.
 
 ### Developer CLI Benchmark Harness
 ```bash
@@ -418,21 +435,7 @@ Live deployment: **[https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.st
 
 ---
 
-## 13. Engineering Challenges & Technical Solutions
-
-- **Challenge 1: OCR Degradation on Old Scanned Circulars**
-  - *Problem*: Physical stamps, signatures, and low scan resolution corrupted text extraction.
-  - *Solution*: Implemented text-density filters, fallback to pure-Python RapidOCR via ONNX, and persistent disk-based MD5 caching.
-- **Challenge 2: Query-Document Terminology Mismatch**
-  - *Problem*: Clerks ask questions in colloquial language while circulars use formal bureaucratic terminology.
-  - *Solution*: Dense vector search (`all-MiniLM-L6-v2`) maps semantic synonyms, while BM25 preserves exact circular numbers, merged via Reciprocal Rank Fusion.
-- **Challenge 3: Cloud Memory & Cold-Start Limits**
-  - *Problem*: Running heavy deep transformer models on free cloud tiers caused memory overruns.
-  - *Solution*: Decoupled heavy Cross-Encoder reranker calls, used CPU-only PyTorch wheels, pre-computed search stores, and cached singleton models.
-
----
-
-## 11. Engineering Decisions & Design Trade-offs
+## 13. Engineering Design Decisions & Trade-offs
 
 ### 1. Why a Strict Two-Stage Architecture?
 *Decision*: Separate document ingestion and indexing (`build_index.py`) from online query retrieval (`app.py`).  
@@ -456,7 +459,7 @@ Live deployment: **[https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.st
 
 ---
 
-## 12. Operational Scope & Known Limitations
+## 14. Operational Scope & Limitations
 
 1. **OCR Quality Dependency**: Text extraction from physical circulars is dependent on scan resolution and document condition. Faint carbon copies, skewed scans, or low-DPI photos may contain minor OCR character errors.
 2. **Complex Multi-Page Tables**: While the chunker preserves paragraph structure and basic tables, complex nested financial tables spanning across page boundaries may require manual cross-verification against the original PDF (facilitated by the direct download buttons in citation cards).
@@ -465,7 +468,7 @@ Live deployment: **[https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.st
 
 ---
 
-## 15. Project Evaluation Rubric Cross-Reference
+## 15. Capstone Evaluation Rubric Cross-Reference
 
 This table maps each requirement of the **IIT Patna Capstone Project 2 (Enterprise Knowledge Assistant with Advanced RAG)** specification to its implementation in this repository:
 
@@ -493,81 +496,7 @@ This table maps each requirement of the **IIT Patna Capstone Project 2 (Enterpri
 
 ---
 
-## 16. Local Setup & Quickstart Guide
-
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/Wajahat-techie/kgp-gyankosh.git
-cd kgp-gyankosh
-```
-
-### Step 2: Create a Virtual Environment
-```bash
-python -m venv venv
-
-# On Windows:
-venv\Scripts\activate
-
-# On Linux / macOS:
-source venv/bin/activate
-```
-
-### Step 3: Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### Step 4: Configure Environment Variables & LLM Provider
-
-> [!IMPORTANT]
-> **API Key Setup & Model Choice**:
-> 1. Copy the template file:
->    ```bash
->    cp .env.example .env
->    ```
-> 2. Open `.env` in any text editor and choose your configuration:
->    - **Option A — Cloud LLM (Google Gemini / OpenAI)**:
->      Paste your free Gemini API key from [Google AI Studio](https://aistudio.google.com/) (`GOOGLE_API_KEY=your_key_here`) or OpenAI key (`OPENAI_API_KEY=your_key_here`).
->    - **Option B — Fully Offline Local LLM (Ollama / Llama 3.1)**:
->      If you prefer 100% privacy with zero token costs and no internet API calls, simply start Ollama locally (`ollama run llama3.1`) and set `LLM_PROVIDER=ollama` in `.env`. No API keys required!
-
-```env
-# -----------------------------------------------------------
-# OPTION 1: Google Gemini Cloud (Default - Free Google Studio Key)
-# -----------------------------------------------------------
-LLM_PROVIDER=google
-GOOGLE_API_KEY=your_google_gemini_api_key_here
-GEMINI_MODEL=gemini-2.5-flash
-
-# -----------------------------------------------------------
-# OPTION 2: 100% Offline Local Inference (No API Key Required!)
-# -----------------------------------------------------------
-# LLM_PROVIDER=ollama
-# OLLAMA_MODEL=llama3.1:latest
-# OLLAMA_BASE_URL=http://localhost:11434
-
-# -----------------------------------------------------------
-# OPTION 3: OpenAI Cloud API
-# -----------------------------------------------------------
-# LLM_PROVIDER=openai
-# OPENAI_API_KEY=your_openai_api_key_here
-# OPENAI_MODEL=gpt-4o-mini
-```
-
-### Step 5: Build or Rebuild the Search Indices
-```bash
-python build_index.py --rebuild
-```
-
-### Step 6: Launch the Web App
-```bash
-streamlit run app.py
-```
-Open `http://localhost:8501` in your browser and log in with any demo account (e.g., `admin_kgp` / `KgpAdmin@2026`).
-
----
-
-## 17. Project Links & Resources
+## 16. Project Deliverables & Links
 
 - 🌐 **Live Web Application**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
 - 💻 **GitHub Repository**: [https://github.com/Wajahat-techie/kgp-gyankosh](https://github.com/Wajahat-techie/kgp-gyankosh)
@@ -578,7 +507,7 @@ Open `http://localhost:8501` in your browser and log in with any demo account (e
 
 ---
 
-## 18. License
+## 17. License
 
 This capstone project is developed as part of the **IIT Patna — Certification in Generative AI & Agentic AI for Developers**.
 
