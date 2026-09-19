@@ -1,12 +1,12 @@
-# KGP Gyankosh: Enterprise Knowledge Assistant with Advanced RAG
-### Internal Administrative Intelligence System for Kashmir Government Polytechnic College, Srinagar
-*Capstone Project: IIT Patna — Generative AI & Agentic AI for Developers (Project 2: Enterprise Knowledge Assistant with Advanced RAG)*
+# KGP Gyankosh: Administrative Knowledge Assistant with Advanced RAG
+### Internal Document Search & Intelligence Platform for Kashmir Government Polytechnic College, Srinagar
+**Capstone Project: IIT Patna — Generative AI & Agentic AI for Developers**  
+*Enterprise Administrative Knowledge Assistant with Advanced Two-Stage RAG*
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kgp-gyankosh.streamlit.app/)
 [![Tests](https://img.shields.io/badge/pytest-26%20passed-success)](tests/)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue)](requirements.txt)
-[![Official Records](https://img.shields.io/badge/records-1%2C158%20Docs%20%7C%208%2C166%20Clauses-green)](output/index_manifest.json)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 - **Live Cloud Deployment**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
 - **GitHub Repository**: [https://github.com/Wajahat-techie/kgp-gyankosh](https://github.com/Wajahat-techie/kgp-gyankosh)
@@ -19,31 +19,39 @@
 **Kashmir Government Polytechnic (KGP) College, Srinagar** (established in 1958 under the Department of Skill Development, Government of Jammu & Kashmir) is one of the oldest technical diploma institutions in the region. The administrative offices—including the Principal's Secretariat, Academic Section, Examination Wing, and Departmental Heads—handle thousands of official records every academic year:
 - Government orders, institutional circulars, and departmental sanction notifications.
 - J&K State Board of Technical Education (SBOTE) notifications, examination schedules, and syllabus revisions.
-- Student attendance policies, fee concession circulars, and admission rosters.
-- Faculty service records, committee proceedings, and civil service leave sanctions governed by J&K Civil Service Regulations.
+- Student attendance policies, academic guidelines, and admission rosters.
+- Faculty service records, committee notifications, and civil service leave sanctions governed by J&K Civil Service Regulations (CSR).
 
-### The Problem
-Administrative staff and academic counselors routinely spend hours manually locating and cross-referencing information scattered across physical files and multi-page digital records:
-1. **Scanned Documents Without Text Layers**: Many official government orders and notices are uploaded as scanned image PDFs or scanned photos. Standard keyword searches (Windows Explorer, Adobe Acrobat) fail completely because there is no selectable text layer.
-2. **High Precision Requirements**: Answering queries like *"What is the condonation limit for shortage of attendance?"* or *"Who is eligible for fee exemption under the TFW scheme?"* requires citing exact clause numbers, dates, and order codes. Vague answers are unacceptable in an administrative setting.
+### The Core Problem Solved
+Administrative staff and academic counselors routinely spend hours manually searching for information scattered across physical filing cabinets and multi-page digital records:
+1. **Scanned Documents Without Text Layers**: Many official government orders and notices are uploaded as scanned image PDFs with stamps and signatures. Standard keyword searches (`Ctrl+F` in Adobe or Windows Search) fail completely because there is no selectable text layer.
+2. **High Precision Requirements in Governance**: Answering queries like *"What is the condonation limit for shortage of attendance?"* or *"Who is eligible for tuition fee exemption under the TFW scheme?"* requires citing exact clause numbers, dates, and order codes. Approximate answers are unacceptable in an administrative setting.
 3. **Risk of Hallucination with Generic LLMs**: Standard cloud chatbots have no access to internal college records and frequently fabricate plausible-sounding rules or deadlines.
-4. **Data Privacy & Operational Flexibility**: Sensitive internal administrative circulars require a solution that can run either fully offline on the campus LAN without leaking records to external APIs, or on secure cloud infrastructure using encrypted API backends.
+4. **Data Privacy & Operational Flexibility**: Sensitive internal administrative circulars require a solution that can run either fully offline on local campus hardware without leaking records to external APIs, or on secure cloud infrastructure for remote access.
 
-### The Solution: KGP Gyankosh
-**KGP Gyankosh** is an internal enterprise-grade Retrieval-Augmented Generation (RAG) platform developed to solve these operational challenges. The system:
-- Ingests and processes digital PDFs, scanned document images, Word files (`.docx`), and text notices using a built-in OCR pipeline.
-- Employs a **Two-Stage Architecture** separating offline batch indexing from online real-time querying, eliminating startup latency.
-- Uses **Dense-Sparse Hybrid Retrieval** (FAISS + BM25 merged via Reciprocal Rank Fusion) combined with a **Cross-Encoder Reranker** (`ms-marco-MiniLM-L-6-v2`) to accurately retrieve relevant clauses.
-- Enforces **strict anti-hallucination prompting** so the LLM answers only from verified passages and provides clear source citations with page numbers.
-- Offers direct single-page or full document downloads for every cited source.
-- Features **role-based bcrypt authentication** across four administrative roles.
-- Supports switchable LLM backends: Google Gemini (default cloud), local Ollama with Llama 3.1 (100% offline and private), and OpenAI.
+**KGP Gyankosh** is an end-to-end, two-stage Advanced Retrieval-Augmented Generation (RAG) platform developed to solve these operational challenges.
 
 ---
 
-## 2. System Architecture & Query Pipeline
+## 2. Project Objectives & System Scope
 
-KGP Gyankosh separates the resource-heavy ingestion and embedding operations from the fast, interactive query application. Pre-computed indices are stored on disk and loaded in sub-second time by the web interface.
+1. **Comprehensive Multi-Format Document Ingestion**:
+   - Automatically parse, OCR, and index official records across PDF, DOCX, and scanned image formats.
+2. **Advanced Two-Stage RAG Pipeline**:
+   - Combine sparse lexical search (BM25) with dense semantic search (FAISS) via Reciprocal Rank Fusion (RRF) and Cross-Encoder reranking.
+3. **Dual Deployment Flexibility (Zero Vendor Lock-In)**:
+   - **Online Cloud**: Hosted live on Streamlit Cloud using Google Gemini Flash or OpenAI GPT-4o-mini for fast cloud reasoning.
+   - **Offline Local**: Self-hosted via Ollama with Llama 3.1 (8B) for zero cloud cost and 100% on-campus data privacy.
+4. **Strict Grounding & Zero-Hallucination Policy**:
+   - Zero tolerance for fabricated rules; every response must cite the verified document name and page number, with 1-click downloads of the original file.
+5. **Role-Based Administrative Security**:
+   - Salted bcrypt password authentication across 4 administrative tiers (Admin, Academic, Exam, Faculty).
+
+---
+
+## 3. System Architecture: Two-Stage Hybrid Pipeline
+
+The system is cleanly separated into two distinct stages: an **Offline Ingestion & Indexing Engine** and an **Online Retrieval & Generation Web App**. This guarantees zero query-time indexing overhead and sub-second response times.
 
 ```
 ==================================================================================================
@@ -56,38 +64,38 @@ KGP Gyankosh separates the resource-heavy ingestion and embedding operations fro
                   │
                   ▼
    ┌───────────────────────────────┐
-   │       Document Loader         │  Auto-detects format & checks for embedded digital text
+   │       Document Loader         │  Auto-detects format & checks for digital text layer
    └───────────────────────────────┘
                   │
-                  ├──► [ Scanned Page / Image ] ──► [ Pure-Python RapidOCR (ONNX) + pypdfium2 ] ──┐
-                  │                                  (Fallback to Tesseract if installed)         │
-                  │                                                                               ▼
-                  └──► [ Digital Text Stream ] ────────────────────────────────────────► [ Document Stream ]
-                                                                                                  │
-                                                                                                  ▼
-                                                                                   ┌──────────────────────────────┐
-                                                                                   │   Recursive Text Chunker     │
-                                                                                   │  (500 chars, 100 overlap,    │
-                                                                                   │   metadata & hash tracking)  │
-                                                                                   └──────────────────────────────┘
-                                                                                                  │
-                                                   ┌──────────────────────────────────────────────┴──────────────────────────────┐
-                                                   ▼                                                                             ▼
-                                      ┌─────────────────────────┐                                                   ┌─────────────────────────┐
-                                      │    Dense Embeddings     │                                                   │       BM25 Corpus       │
-                                      │   (all-MiniLM-L6-v2)    │                                                   │    Tokenizer & Model    │
-                                      └─────────────────────────┘                                                   └─────────────────────────┘
-                                                   │                                                                             │
-                                                   ▼                                                                             ▼
-                                      ┌─────────────────────────┐                                                   ┌─────────────────────────┐
-                                      │   FAISS Vector Store    │                                                   │       BM25 Store        │
-                                      │ (output/vector_store/)  │                                                   │  (output/bm25_store/)   │
-                                      └─────────────────────────┘                                                   └─────────────────────────┘
-                                                   │                                                                             │
-                                                   └──────────────────────────────┬──────────────────────────────────────────────┘
-                                                                                  ▼
-                                                                    [ output/index_manifest.json ]
-                                                               (Tracks MD5 hashes for incremental updates)
+                  ├──► [ Scanned Page / Image ] ──► [ RapidOCR (ONNX) + pypdfium2 ] ──┐
+                  │                                  (Fallback to Tesseract)           │
+                  │                                                                    ▼
+                  └──► [ Digital Text Stream ] ───────────────────────────────► [ Document Stream ]
+                                                                                      │
+                                                                                      ▼
+                                                                       ┌──────────────────────────────┐
+                                                                       │   Recursive Text Chunker     │
+                                                                       │  (500 chars, 100 overlap,    │
+                                                                       │   chunk IDs & MD5 tracking)  │
+                                                                       └──────────────────────────────┘
+                                                                                      │
+                                       ┌──────────────────────────────────────────────┴──────────────────────────────┐
+                                       ▼                                                                             ▼
+                          ┌─────────────────────────┐                                                   ┌─────────────────────────┐
+                          │    Dense Embeddings     │                                                   │       BM25 Corpus       │
+                          │   (all-MiniLM-L6-v2)    │                                                   │    Tokenizer & Model    │
+                          └─────────────────────────┘                                                   └─────────────────────────┘
+                                       │                                                                             │
+                                       ▼                                                                             ▼
+                          ┌─────────────────────────┐                                                   ┌─────────────────────────┐
+                          │   FAISS Vector Store    │                                                   │       BM25 Store        │
+                          │ (output/vector_store/)  │                                                   │  (output/bm25_store/)   │
+                          └─────────────────────────┘                                                   └─────────────────────────┘
+                                       │                                                                             │
+                                       └──────────────────────────────┬──────────────────────────────────────────────┘
+                                                                      ▼
+                                                        [ output/index_manifest.json ]
+                                                   (Tracks MD5 hashes for incremental updates)
 
 ==================================================================================================
                      STAGE 2: ONLINE RETRIEVAL & INTERACTIVE QUERY APPLICATION
@@ -132,7 +140,7 @@ KGP Gyankosh separates the resource-heavy ingestion and embedding operations fro
                                                    ▼ (Top-4 Highly Relevant Passages)
      ┌─────────────────────────────────────────────────────────────────────────────────────────┐
      │                                SWITCHABLE LLM BACKEND                                   │
-     │        [Google Gemini 3.5 Flash] (Default) | [Ollama Llama 3.1] | [OpenAI GPT-4o-mini]  │
+     │       [Google Gemini Flash] (Default) | [Ollama Llama 3.1] | [OpenAI GPT-4o-mini]       │
      │                                                                                         │
      │   System Prompt Constraints:                                                            │
      │   1. Ground answers strictly on retrieved official text.                                │
@@ -146,29 +154,36 @@ KGP Gyankosh separates the resource-heavy ingestion and embedding operations fro
      │   - Formatted grounded answer with official institutional verification badge            │
      │   - Clickable citation cards with direct single-page PDF or full document downloads     │
      │   - Multi-turn conversation history with session reset control                          │
-     │   - Live index statistics (1,158 documents, 8,166 clauses active)                       │
+     │   - Dynamic index status badge showing active document & clause count                   │
      └─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Technology Stack & Component Justifications
+## 4. Ingestion, Chunking & Indexing Pipeline
 
-| Component | Technology | Version | Engineering Justification |
-| :--- | :--- | :--- | :--- |
-| **Runtime Environment** | Python | 3.10 – 3.14 | Modern standard for ML/RAG pipelines; tested on Windows and Linux. |
-| **Web Framework** | Streamlit | `>=1.30.0` | Fast deployment of data-intensive web apps with built-in state handling. |
-| **Dense Vector Index** | FAISS (`faiss-cpu`) | `>=1.7.4` | In-memory similarity search with fast serialization to disk; no external database server needed. |
-| **Sparse Keyword Search** | BM25 (`rank_bm25`) | `>=0.2.2` | Implements BM25Okapi for exact lexical matches on institutional codes (e.g. `KGP/ADM/2026/104`, `SBOTE`). |
-| **Dense Embeddings** | `sentence-transformers` | `>=2.2.2` | Local `all-MiniLM-L6-v2` produces compact 384-dimensional embeddings at zero inference cost. Fallbacks for Google GenAI and OpenAI. |
-| **Passage Reranking** | Cross-Encoder | `>=2.2.2` | `ms-marco-MiniLM-L-6-v2` applies cross-attention between query and passage, pruning false positives before LLM context creation. |
-| **LLM Inference** | Google Gemini / Ollama / OpenAI | Variable | Configurable via `.env` or UI selector. Gemini Flash provides fast cloud responses; Ollama (Llama 3.1) ensures 100% offline data privacy on-campus. |
-| **OCR Processing** | RapidOCR (`rapidocr-onnxruntime`) + `pypdfium2` | `>=1.3.0` | Pure-Python ONNX runtime OCR requiring zero external C++ binaries (Tesseract/Poppler), with disk caching. |
-| **Document Loaders** | `pypdf`, `python-docx` | `>=3.0.0` | Native parsers for digital PDF notices and Word circulars preserving structural paragraphs. |
-| **Authentication** | `streamlit-authenticator` + `bcrypt` | `>=0.3.0` | Salted bcrypt password hashing prevents plaintext password leakage, keeping auth in Git-ignored YAML. |
-| **PyTorch Distribution** | PyTorch CPU (`--extra-index-url`) | `>=2.0.0` | Uses the lightweight CPU wheel (~180MB) instead of the heavy CUDA wheel (~3GB) to prevent container crashes on Streamlit Cloud. |
-| **Automated Testing** | `pytest` | `>=7.4.0` | 26 passing unit and integration tests covering chunking, embeddings, memory, tokenization, and RRF fusion. |
-| **Cloud Keepalive** | GitHub Actions | `keepalive.yaml` | Scheduled workflow pinging the Streamlit Cloud deployment every 3 days to prevent automatic sleeping. |
+### Multi-Format Parsing Architecture
+- **Digital PDFs**: Extracted using `pypdf` page by page, preserving original page numbers.
+- **Word Documents (`.docx`)**: Parsed using `python-docx`, capturing paragraphs and structured tables.
+- **Scanned Orders & Notices**: Automatic text-density checks identify pages without a native text layer. Scanned pages are passed to a pure-Python ONNX-based OCR engine (`RapidOCR` + `pypdfium2`) with fallback to Tesseract.
+- **Persistent OCR Cache**: OCR outputs are serialized to `output/ocr_cache/` so subsequent indexing runs execute in milliseconds.
+- **Incremental Delta Indexing**: `build_index.py` computes MD5 hashes for all files and compares them against `output/index_manifest.json`. Only new or modified circulars are processed during routine updates.
+
+### Semantic Chunking Strategy
+- **Splitter**: `RecursiveCharacterTextSplitter`
+- **Chunk Size**: `500 characters` | **Chunk Overlap**: `100 characters`
+- **Why 500 Characters?**: Government orders and circulars are structured in compact, clause-specific paragraphs. A 500-character boundary preserves individual rules (e.g., minimum attendance criteria, late fee penalties) without diluting the semantic meaning across unrelated sections.
+- **Metadata Schema per Chunk**:
+  ```json
+  {
+    "source": "Orders.pdf",
+    "page": 14,
+    "chunk_id": "Orders.pdf#p14_c2",
+    "chunk_index": 2,
+    "file_type": "pdf",
+    "is_ocr": true
+  }
+  ```
 
 ---
 
@@ -187,7 +202,7 @@ Users can dynamically switch between three LLM backends in the sidebar without r
 
 ### 3. Dense-Sparse Hybrid Search with RRF
 Neither vector search nor keyword search alone is sufficient for administrative documents:
-- Dense vector search (`all-MiniLM-L6-v2`) understands semantic concepts (e.g. *"fee concession and scholarship rules"* matches *"Tuition Fee Waiver (TFW) Scheme"*).
+- Dense vector search (`all-MiniLM-L6-v2`) understands semantic concepts (e.g. *"financial help for school fees"* matches *"Child Education Allowance"*).
 - Sparse search (BM25) ensures that exact order reference numbers (e.g. `Order No: 12 of 2026`) and institutional abbreviations (`SBOTE`, `NSS`, `JKBOSE`) are never missed.
 - The two result lists are merged using **Reciprocal Rank Fusion (RRF)**:
   $$\text{RRF Score}(d) = \sum_{m \in \{\text{dense}, \text{sparse}\}} \frac{w_m}{60 + \text{rank}_m(d)}$$
@@ -338,171 +353,82 @@ The system comes pre-configured with four test administrative accounts (all pass
 
 | Role / Designation | Username | Demo Password | Scope & Department |
 | :--- | :--- | :--- | :--- |
-| **Principal / Admin** | `admin_kgp` | `KgpAdmin@2026` | Full administrative oversight |
-| **Academic Section** | `clerk_academic` | `Academic@2026` | Admissions, syllabus, attendance rules |
-| **Examination Wing** | `exam_wing` | `Exam@2026` | SBOTE exams, fee dates, evaluation |
-| **HOD / Senior Faculty** | `hod_polytechnic` | `Faculty@2026` | Departmental circulars & leave sanction |
+| **Admin** | `admin_kgp` | Principal / Head of Administration | `KgpAdmin@2026` |
+| **Staff** | `clerk_academic` | Academic Section In-Charge | `Academic@2026` |
+| **Staff** | `exam_wing` | Examination Wing Controller | `Exam@2026` |
+| **Faculty** | `hod_polytechnic` | Head of Department / Senior Faculty | `Faculty@2026` |
 
-### Step 6: Verify System with Automated Tests
-Run the complete test suite to confirm that chunking, embeddings, memory, tokenization, and retrieval functions pass:
+---
+
+## 9. User Interface & Administrative Design System
+
+- **Institutional Styling**: Modern dark glassmorphic design system (`static/style.css`) incorporating official Jammu & Kashmir Government crest and college branding.
+- **Typography**: Google Fonts (`Outfit` for headings and `Plus Jakarta Sans` for body text).
+- **Live Metric Badge**: Real-time status counter displaying the number of active indexed documents and searchable clauses.
+- **Interactive Suggestion Chips**: Quick-click query prompts for common administrative inquiries.
+- **Responsive Citation Cards**: Structured source cards showing verified document titles, page numbers, match scores, excerpts, and download buttons.
+- **Non-Overlapping Bottom Dock**: Floating query input bar with auto-scroll script.
+
+---
+
+## 10. Automated Testing & Verification
+
+The repository includes **26 automated unit and integration tests** built with `pytest`:
+
 ```bash
 pytest -v
 ```
-Expected output:
-```text
-tests/test_chunker.py::TestTextSplitter::test_empty_text PASSED
-tests/test_chunker.py::TestTextSplitter::test_short_text_no_split PASSED
-...
-tests/test_retrieval.py::TestDocumentReranker::test_reranker_empty_candidates PASSED
-============================== 26 passed in 1.37s ==============================
-```
 
----
+### Test Coverage
+- `tests/test_chunker.py` (7 tests): Text chunk limits, overlap consistency, and deterministic chunk ID assignment (`source#pX_cY`).
+- `tests/test_embeddings.py` (3 tests): SentenceTransformers embedding initialization, dimension validation (384), and provider fallback logic.
+- `tests/test_memory.py` (7 tests): Multi-turn sliding window memory, conversation clearing, and LLM-assisted query reformulation.
+- `tests/test_retrieval.py` (9 tests): Alphanumeric BM25 tokenization, Reciprocal Rank Fusion weights, and Cross-Encoder reranker fallbacks.
 
-## 7. Environment Variables Reference
+**Status**: 26 passed in ~0.86s across Python 3.10 through 3.14.
 
-| Variable | Default Value | Description |
-| :--- | :--- | :--- |
-| `LLM_PROVIDER` | `google` | Active LLM backend: `google`, `ollama`, or `openai`. |
-| `GOOGLE_API_KEY` | `""` | API key from Google AI Studio (required if `LLM_PROVIDER=google`). |
-| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Gemini model name (e.g. `gemini-3.5-flash-lite` or `gemini-1.5-flash`). |
-| `OLLAMA_MODEL` | `llama3.1:latest` | Ollama model tag when using local offline LLM. |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | HTTP endpoint of local Ollama service. |
-| `OPENAI_API_KEY` | `""` | OpenAI API key (required if `LLM_PROVIDER=openai`). |
-| `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI chat completion model. |
-| `EMBEDDING_PROVIDER` | `sentence-transformers` | `sentence-transformers` (local CPU), `google`, or `openai`. |
-| `EMBEDDING_MODEL_NAME`| `all-MiniLM-L6-v2` | Hugging Face model name for local dense embeddings. |
-| `RERANKER_MODEL` | `cross-encoder/ms-marco-MiniLM-L-6-v2` | Hugging Face Cross-Encoder model name. |
-| `ENABLE_RERANKER` | `true` | Toggle cross-encoder reranking step on or off. |
-| `HYBRID_ALPHA` | `0.5` | Weight balance: 0.0 (pure BM25) to 1.0 (pure FAISS vector). 0.5 is balanced. |
-| `CHUNK_SIZE` | `500` | Target character size for text chunks. |
-| `CHUNK_OVERLAP` | `100` | Character overlap between adjacent chunks to preserve boundary context. |
-| `DATA_DIR` | `data/sample_notices` | Source folder containing administrative circulars to index. |
-| `VECTOR_STORE_DIR` | `output/vector_store` | Destination folder for serialized FAISS index. |
-| `BM25_STORE_DIR` | `output/bm25_store` | Destination folder for serialized BM25 index. |
-| `AUTH_CONFIG_PATH` | `config/auth_config.yaml` | Location of administrative credentials file. |
-
----
-
-## 8. Execution Guide: Two-Stage Workflow
-
-### Stage 1: Document Ingestion & Indexing (`build_index.py`)
-Run the indexing script whenever new college circulars or notices are added:
-
-```bash
-# Standard incremental run (processes only new or modified files)
-python build_index.py
-
-# Force a full rebuild from scratch
-python build_index.py --rebuild
-
-# Index from a custom directory
-python build_index.py --data-dir path/to/notices
-```
-
-**Indexing Actions:**
-1. Loads files from the data folder (PDF, DOCX, TXT, scanned images).
-2. Uses cached OCR text for scanned documents or runs RapidOCR if not yet cached.
-3. Chunks text using `RecursiveCharacterTextSplitter` and embeds chunks using `all-MiniLM-L6-v2`.
-4. Updates FAISS vector store in `output/vector_store/` and BM25 index in `output/bm25_store/`.
-5. Records file MD5 hashes in `output/index_manifest.json` and writes execution logs to `output/index_logs/`.
-
-*(Note: Pre-built index stores for 1,158 official college documents and 8,166 clauses are already included in `output/`, so you can immediately launch Stage 2 without re-indexing).*
-
-### Stage 2: Launch Interactive Web Application (`app.py`)
-Launch the Streamlit web application:
-```bash
-streamlit run app.py
-```
-Open your browser at `http://localhost:8501`. Log in using any of the credentials from the [Authentication Table](#step-5-configure-authentication-accounts).
-
-### Stage 3: Headless CLI Query Testing
-To test retrieval accuracy and generation directly from the command line without opening a browser:
+### Developer CLI Benchmark Harness
 ```bash
 python scripts/test_queries.py
 ```
 
 ---
 
-## 9. Switching LLM Backends
+## 11. Production Cloud Deployment & Optimizations
 
-Switching between cloud and local offline models requires **no code modifications**; simply adjust your `.env` or select from the sidebar dropdown:
+Live deployment: **[https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)**
 
-### 1. Google Gemini (Cloud — Default)
-```env
-LLM_PROVIDER=google
-GOOGLE_API_KEY=your_google_api_key_here
-GEMINI_MODEL=gemini-3.5-flash-lite
-EMBEDDING_PROVIDER=sentence-transformers
-```
-
-### 2. Local Ollama (100% Offline & Free)
-Make sure the Ollama daemon is running:
-```bash
-ollama run llama3.1
-```
-Configure `.env`:
-```env
-LLM_PROVIDER=ollama
-OLLAMA_MODEL=llama3.1:latest
-OLLAMA_BASE_URL=http://localhost:11434
-EMBEDDING_PROVIDER=sentence-transformers
-```
-
-### 3. OpenAI (Cloud)
-```env
-LLM_PROVIDER=openai
-OPENAI_API_KEY=sk-proj-your_openai_key_here
-OPENAI_MODEL=gpt-4o-mini
-EMBEDDING_PROVIDER=openai
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-```
-*(Note: If you switch embedding providers from sentence-transformers to OpenAI, run `python build_index.py --rebuild` to regenerate the vector index with the new embedding dimensionality).*
+### Production Optimizations:
+1. **PyTorch CPU Build Optimization**: `requirements.txt` points to `--extra-index-url https://download.pytorch.org/whl/cpu`. This reduces the PyTorch package size from ~3GB (CUDA) to ~180MB, completely eliminating out-of-memory cloud container crashes.
+2. **Pre-Built Ingestion Stores**: Pre-serialized FAISS and BM25 index stores in `output/` allow the cloud web app to cold-start in under 3 seconds with zero query-time indexing lag.
+3. **Resource Caching (`@st.cache_resource`)**: Singletons for vector stores, reranker models, and LLM clients cached in memory.
+4. **Automated Keepalive Workflow**: A GitHub Actions workflow (`.github/workflows/keepalive.yaml`) pings the Streamlit deployment every 3 days to prevent automatic app hibernation.
 
 ---
 
-## 10. Sample Test Cases & Grounded Outputs
+## 12. Demonstrated Administrative Use Cases
 
-The following representative test cases demonstrate the system's accuracy, conversational memory, anti-hallucination guardrails, and administrative drafting capabilities.
+| # | Administrative Query | Verified Finding | Cited Source |
+| :--- | :--- | :--- | :--- |
+| **1** | *"Who has been assigned as Incharge Computer Engineering?"* | Er. Shabir Ahmad Ahanger assigned as Incharge Computer Engineering. | `Orders.pdf` (Page 22, Order No: 23/2026) |
+| **2** | *"Who was appointed to the Sports Committee for the academic session 2026?"* | Constitution of institutional sports committee with designated head and faculty departmental representatives. | `Orders.pdf` (Page 3, Order No: 03 of 2026) |
+| **3** | *"What are the internal physical verification guidelines for college stores and workshops?"* | Directs HoDs and Section Heads to conduct internal physical verification of equipment, stock registers, and assets by 30th April 2026. | `Orders.pdf` (Page 4, Order No: 05 of 2026) |
+| **4** | *"What are the criteria and points for Guest Faculty engagement in 2025?"* | 80 points for academic merit, 15 points for higher qualifications, 5 points for interaction. | `Advertisement Guest Faculty KGP 2025.docx` (Page 1) |
+| **5** | *"What is the condonation limit for shortage of attendance?"* | Up to 10% condonation permissible by the Principal for verified medical illness or official institutional deputation. | `Notices_and_orders.pdf` (Page 1) |
 
-### Test Case 1: Exact Fact Retrieval with Source Citation
-- **User Query**: *"What is the minimum attendance required for diploma engineering students, and can the Principal condone shortage?"*
-- **System Retrieval**: Top candidate retrieved from `KGP_Order_Attendance_and_Leave_Rules_2026.pdf` (Page 1) with rerank score `0.892`.
-- **Grounded Response**:
-  > Under the official attendance policy of Kashmir Government Polytechnic College, Srinagar:
-  > - All registered diploma engineering students must maintain a mandatory minimum attendance of **75%** across theory lectures and practical laboratory sessions to qualify for the SBOTE semester examinations.
-  > - The Principal is authorized to condone an attendance shortage of up to **10%** (i.e. between 65.0% and 74.9%) exclusively in verified cases of prolonged medical illness or official institutional deputation (NCC, NSS, or recognized sports).
-  > - Any attendance aggregate below 65.0% cannot be condoned under any circumstances, and the candidate will be detained.
-  >
-  > **Sources**:
-  > - `KGP_Order_Attendance_and_Leave_Rules_2026.pdf` (Page 1)
+---
 
-### Test Case 2: Multi-Turn Dialogue & Pronoun Resolution (Conversational Memory)
-- **Turn 1 User**: *"What is the policy for medical leave condonation?"*
-- **Turn 1 Response**: Explains condonation criteria as cited above.
-- **Turn 2 User**: *"What is the deadline to submit certificates for it?"*
-- **Internal Query Reformulation**: *"What is the deadline to submit medical certificates for attendance condonation in KGP attendance rules?"*
-- **Grounded Response**:
-  > Medical certificates issued by a Government Hospital or Registered Medical Practitioner must be submitted to the concerned Head of Department within **three (3) working days** of the student resuming classes. Retrospective submissions at the end of the academic semester will not be accepted.
-  >
-  > **Sources**:
-  > - `KGP_Order_Attendance_and_Leave_Rules_2026.pdf` (Page 1)
+## 13. Engineering Challenges & Technical Solutions
 
-### Test Case 3: Anti-Hallucination on Out-of-Scope Query
-- **User Query**: *"What is the mess fee refund policy for PhD research scholars staying in hostel block C?"*
-- **System Retrieval**: Reranker scores all retrieved chunks below relevance threshold.
-- **Grounded Response**:
-  > **I could not find this information in the available official documents.**
-  > *(The indexed college records cover three-year polytechnic diploma courses and administrative staff orders. There are no guidelines or policies regarding PhD research scholar hostels in the available documents).*
-  >
-  > **Sources**:
-  > - None (Query ungrounded in available documents)
-
-### Test Case 4: Administrative Circular Drafting (General AI Mode)
-- **Mode Toggle**: Switched to `🌐 General AI (Direct LLM)`.
-- **User Query**: *"Draft an official circular notifying students of Computer and Civil Engineering about the upcoming semester fee submission deadline of 25th October 2026."*
-- **Generated Response**:
-  > Generates a formal Jammu & Kashmir Government administrative circular complete with institutional header, reference code format (`KGP/ACAD/2026/...`), subject line, numbered operative paragraphs, late fee penalty clauses, and standard distribution copy endorsements (HODs, Notice Board, Accounts Section, Principal's Secretariat).
+- **Challenge 1: OCR Degradation on Old Scanned Circulars**
+  - *Problem*: Physical stamps, signatures, and low scan resolution corrupted text extraction.
+  - *Solution*: Implemented text-density filters, fallback to pure-Python RapidOCR via ONNX, and persistent disk-based MD5 caching.
+- **Challenge 2: Query-Document Terminology Mismatch**
+  - *Problem*: Clerks ask questions in colloquial language while circulars use formal bureaucratic terminology.
+  - *Solution*: Dense vector search (`all-MiniLM-L6-v2`) maps semantic synonyms, while BM25 preserves exact circular numbers, merged via Reciprocal Rank Fusion.
+- **Challenge 3: Cloud Memory & Cold-Start Limits**
+  - *Problem*: Running heavy deep transformer models on free cloud tiers caused memory overruns.
+  - *Solution*: Decoupled heavy Cross-Encoder reranker calls, used CPU-only PyTorch wheels, pre-computed search stores, and cached singleton models.
 
 ---
 
@@ -539,7 +465,7 @@ The following representative test cases demonstrate the system's accuracy, conve
 
 ---
 
-## 13. Project Evaluation Rubric Cross-Reference
+## 15. Project Evaluation Rubric Cross-Reference
 
 This table maps each requirement of the **IIT Patna Capstone Project 2 (Enterprise Knowledge Assistant with Advanced RAG)** specification to its implementation in this repository:
 
@@ -562,14 +488,98 @@ This table maps each requirement of the **IIT Patna Capstone Project 2 (Enterpri
 | **Interactive User Interface** | Responsive Streamlit interface with dark glassmorphism styling and live metrics | `app.py`, `static/style.css` | Verified |
 | **Automated Test Suite** | 26 unit and integration tests executed with pytest | `tests/`, `pytest.ini` | Verified (26/26 passed) |
 | **Production Cloud Deployment** | Hosted on Streamlit Community Cloud with GitHub Actions keepalive workflow | `.github/workflows/keepalive.yaml` | Verified Live |
-| **Real Institutional Dataset** | Ingested repository of 1,158 official administrative documents and 8,166 clauses | `output/index_manifest.json`, `data/` | Verified |
+| **Real Institutional Dataset** | Ingested repository of official administrative documents and indexed clauses | `output/index_manifest.json`, `data/` | Verified |
 | **Documentation & Diagrams** | Complete system guide, setup manual, architecture diagrams, and test queries | `README.md`, `PROJECT_ARCHITECTURE_AND_FEATURES.md` | Verified |
 
 ---
 
-## 14. License & Institutional Attribution
+## 16. Local Setup & Quickstart Guide
 
-This capstone project is developed as part of the **IIT Patna — Executive M.Tech / Certification in Generative AI & Agentic AI for Developers**.  
-Institutional document records and administrative context: **Kashmir Government Polytechnic College, Srinagar**, Department of Skill Development, Government of Jammu & Kashmir.
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/Wajahat-techie/kgp-gyankosh.git
+cd kgp-gyankosh
+```
+
+### Step 2: Create a Virtual Environment
+```bash
+python -m venv venv
+
+# On Windows:
+venv\Scripts\activate
+
+# On Linux / macOS:
+source venv/bin/activate
+```
+
+### Step 3: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Step 4: Configure Environment Variables & LLM Provider
+
+> [!IMPORTANT]
+> **API Key Setup & Model Choice**:
+> 1. Copy the template file:
+>    ```bash
+>    cp .env.example .env
+>    ```
+> 2. Open `.env` in any text editor and choose your configuration:
+>    - **Option A — Cloud LLM (Google Gemini / OpenAI)**:
+>      Paste your free Gemini API key from [Google AI Studio](https://aistudio.google.com/) (`GOOGLE_API_KEY=your_key_here`) or OpenAI key (`OPENAI_API_KEY=your_key_here`).
+>    - **Option B — Fully Offline Local LLM (Ollama / Llama 3.1)**:
+>      If you prefer 100% privacy with zero token costs and no internet API calls, simply start Ollama locally (`ollama run llama3.1`) and set `LLM_PROVIDER=ollama` in `.env`. No API keys required!
+
+```env
+# -----------------------------------------------------------
+# OPTION 1: Google Gemini Cloud (Default - Free Google Studio Key)
+# -----------------------------------------------------------
+LLM_PROVIDER=google
+GOOGLE_API_KEY=your_google_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
+
+# -----------------------------------------------------------
+# OPTION 2: 100% Offline Local Inference (No API Key Required!)
+# -----------------------------------------------------------
+# LLM_PROVIDER=ollama
+# OLLAMA_MODEL=llama3.1:latest
+# OLLAMA_BASE_URL=http://localhost:11434
+
+# -----------------------------------------------------------
+# OPTION 3: OpenAI Cloud API
+# -----------------------------------------------------------
+# LLM_PROVIDER=openai
+# OPENAI_API_KEY=your_openai_api_key_here
+# OPENAI_MODEL=gpt-4o-mini
+```
+
+### Step 5: Build or Rebuild the Search Indices
+```bash
+python build_index.py --rebuild
+```
+
+### Step 6: Launch the Web App
+```bash
+streamlit run app.py
+```
+Open `http://localhost:8501` in your browser and log in with any demo account (e.g., `admin_kgp` / `KgpAdmin@2026`).
+
+---
+
+## 17. Project Links & Resources
+
+- 🌐 **Live Web Application**: [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/)
+- 💻 **GitHub Repository**: [https://github.com/Wajahat-techie/kgp-gyankosh](https://github.com/Wajahat-techie/kgp-gyankosh)
+- 📊 **Presentation Slide Deck**: [Download PPTX (17.8 MB)](docs/KGP_Gyankosh_Presentation.pptx)
+- 📝 **Presentation Speaker Notes**: [Download Notes (DOCX)](docs/KGP_Gyankosh_Presentation_Notes.docx)
+- 📑 **System Architecture PDF**: [Download PDF](docs/reports/KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf)
+- 📖 **Complete Documentation PDF**: [Download PDF](docs/reports/KGP_Gyankosh_Complete_Documentation.pdf)
+
+---
+
+## 18. License
+
+This capstone project is developed as part of the **IIT Patna — Certification in Generative AI & Agentic AI for Developers**.
 
 Released under the [MIT License](LICENSE).

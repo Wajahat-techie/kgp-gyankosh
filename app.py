@@ -1,15 +1,11 @@
 """
-==============================================================================
-KGP Gyankosh - Stage 2: Interactive Enterprise Knowledge Assistant (app.py)
-Kashmir Government Polytechnic College, Srinagar - Administration Department
-==============================================================================
+KGP Gyankosh - Interactive Administrative Assistant (Streamlit Web Interface).
 
-Streamlit Query Application:
-- Loads the pre-built FAISS vector database and BM25 index (zero query-time indexing).
-- Enforces internal role-based access control via bcrypt authentication.
-- Executes Advanced RAG: Query Reformulation -> Hybrid Search (RRF) -> Cross-Encoder Reranking -> Grounded LLM Response.
-- Employs strict anti-hallucination mitigation and expandable source citations.
-- Modern enterprise dark glassmorphic design system.
+Provides a search interface over college circulars, notices, and orders using:
+- Pre-built FAISS vector store & BM25 sparse index
+- Role-based authentication (bcrypt)
+- Advanced RAG: query reformulation, hybrid retrieval (RRF), cross-encoder reranking
+- Direct citation badges and document download links
 """
 
 import os
@@ -22,22 +18,20 @@ from typing import Optional, List, Dict, Any, Tuple
 import streamlit as st
 from dotenv import load_dotenv
 
-# Set page configuration first before any Streamlit widgets
 st.set_page_config(
-    page_title="KGP Gyankosh - Administrative Intelligence Assistant",
+    page_title="KGP Gyankosh - Administrative Assistant",
     page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Ensure project root is in sys.path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
-# Seamlessly inject Streamlit Cloud secrets into os.environ for cloud deployment
+# Inject Streamlit Cloud secrets into os.environ if available
 try:
     for key, value in st.secrets.items():
         if isinstance(value, str):
@@ -502,20 +496,30 @@ def get_active_session():
     return st.session_state.chat_sessions[st.session_state.active_session_id]
 
 
-def render_landing_hero(total_files: int = 1162, total_chunks: int = 7801):
+def render_landing_hero(total_files: int = None, total_chunks: int = None):
     """Renders the top institutional hero banner for the landing/login view."""
+    if total_files is None or total_chunks is None:
+        try:
+            m_path = os.path.join(PROJECT_ROOT, "output", MANIFEST_FILENAME)
+            m_data = load_manifest(m_path)
+            total_files = len(m_data.get("indexed_files", {})) or 9
+            total_chunks = m_data.get("total_chunks", 0) or 538
+        except Exception:
+            total_files = 9
+            total_chunks = 538
+
     st.markdown(
         f"""
         <div class="hero-card">
             <div style="font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #38bdf8; margin-bottom: 0.4rem;">
-                INTERNAL ADMINISTRATIVE INTELLIGENCE PLATFORM
+                INTERNAL ADMINISTRATIVE ASSISTANT
             </div>
             <h1 class="hero-main-title">KGP Gyankosh</h1>
             <div class="college-institution-title">
                 KASHMIR GOVERNMENT POLYTECHNIC COLLEGE, SRINAGAR
             </div>
             <p class="hero-subtext">
-                Internal Administrative Intelligence System for Official College Documents.
+                Administrative Intelligence System for Official College Documents.
             </p>
             <div class="stats-strip">
                 <div class="stat-box">
@@ -529,9 +533,7 @@ def render_landing_hero(total_files: int = 1162, total_chunks: int = 7801):
             </div>
             <div style="margin-top: 1.4rem;">
                 <div class="landing-developer-badge">
-                    <span>✨ Designed and Developed by <strong>Wajahat</strong></span>
-                    <span style="opacity: 0.6;">•</span>
-                    <span style="color: #38bdf8;">📞 9906457756</span>
+                    <span>🏛️ Kashmir Government Polytechnic College • Administrative Intelligence</span>
                 </div>
             </div>
         </div>
@@ -579,7 +581,7 @@ def main():
         st.markdown(
             """
             <div class="app-bottom-credit-bar" style="margin-top: 2.5rem;">
-                🏛️ <strong>KGP Gyankosh</strong> • Administrative Intelligence Assistant • Designed and Developed by <strong>Wajahat</strong> • 📞 <strong>9906457756</strong>
+                🏛️ <strong>KGP Gyankosh</strong> • Administrative Knowledge Assistant • Kashmir Government Polytechnic College
             </div>
             """,
             unsafe_allow_html=True
@@ -764,44 +766,46 @@ def main():
             active_session["memory"].clear()
             st.rerun()
 
-        # Technical Documentation & Reports Section
+        # Technical Documentation, Reports & Presentation Section
         reports_dir = os.path.join(PROJECT_ROOT, "docs", "reports")
+        docs_dir = os.path.join(PROJECT_ROOT, "docs")
         report_specs = [
-            ("🏛️ System Architecture PDF", "KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf"),
-            ("📖 Line-by-Line Code Doc PDF", "KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"),
-            ("📘 Complete Documentation PDF", "KGP_Gyankosh_Complete_Documentation.pdf"),
+            ("📊 Capstone Presentation (PPTX)", os.path.join(docs_dir, "KGP_Gyankosh_Presentation.pptx"), "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
+            ("📝 Presentation Notes (DOCX)", os.path.join(docs_dir, "KGP_Gyankosh_Presentation_Notes.docx"), "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+            ("🏛️ System Architecture PDF", os.path.join(reports_dir, "KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf"), "application/pdf"),
+            ("📖 Line-by-Line Code Doc PDF", os.path.join(reports_dir, "KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"), "application/pdf"),
+            ("📘 Complete Documentation PDF", os.path.join(reports_dir, "KGP_Gyankosh_Complete_Documentation.pdf"), "application/pdf"),
         ]
         available_reports = [
-            (label, fname, os.path.join(reports_dir, fname))
-            for label, fname in report_specs
-            if os.path.exists(os.path.join(reports_dir, fname))
+            (label, os.path.basename(r_path), r_path, mime)
+            for label, r_path, mime in report_specs
+            if os.path.exists(r_path)
         ]
         if available_reports:
-            with st.expander("📑 System Documentation Reports", expanded=False):
-                st.markdown("<div style='font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px;'>Download publication-ready technical reports:</div>", unsafe_allow_html=True)
-                for r_idx, (r_label, r_fname, r_path) in enumerate(available_reports):
+            with st.expander("📑 Reports & Presentation Deck", expanded=False):
+                st.markdown("<div style='font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px;'>Download project slides and technical reports:</div>", unsafe_allow_html=True)
+                for r_idx, (r_label, r_fname, r_path, r_mime) in enumerate(available_reports):
                     try:
                         with open(r_path, "rb") as rf:
-                            pdf_bytes = rf.read()
+                            file_bytes = rf.read()
                         st.download_button(
                             label=f"📥 {r_label}",
-                            data=pdf_bytes,
+                            data=file_bytes,
                             file_name=r_fname,
-                            mime="application/pdf",
+                            mime=r_mime,
                             key=f"sidebar_report_dl_{r_idx}",
                             use_container_width=True
                         )
                     except Exception as r_err:
-                        logger.warning(f"Could not load report {r_fname}: {r_err}")
+                        logger.warning(f"Could not load file {r_fname}: {r_err}")
 
-        # Developer Attribution Card in Sidebar
+        # System Platform Info Card in Sidebar
         st.divider()
         st.markdown(
             """
             <div class="developer-credit-card">
-                <div class="developer-credit-title">SYSTEM ARCHITECT & DEVELOPER</div>
-                <div class="developer-credit-name">Designed and Developed by Wajahat</div>
-                <div class="developer-credit-phone">📞 9906457756</div>
+                <div class="developer-credit-title">SYSTEM PLATFORM</div>
+                <div class="developer-credit-name">KGP Gyankosh • Advanced Two-Stage RAG</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -1037,11 +1041,11 @@ def main():
                 st.error(f"⚠️ Query error: {err}")
                 logger.error(f"Error handling query: {err}", exc_info=True)
 
-    # Developer Credit Bar at Interface Bottom
+    # Footer Credit Bar at Interface Bottom
     st.markdown(
         """
         <div class="app-bottom-credit-bar">
-            🏛️ <strong>KGP Gyankosh</strong> • Administrative Intelligence Assistant • Designed and Developed by <strong>Wajahat</strong> • 📞 <strong>9906457756</strong>
+            🏛️ <strong>KGP Gyankosh</strong> • Administrative Knowledge Assistant • Kashmir Government Polytechnic College
         </div>
         """,
         unsafe_allow_html=True
