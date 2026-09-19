@@ -573,8 +573,8 @@ Open `http://localhost:8501` in your browser and log in with any demo account (e
 - 💻 **GitHub Repository**: [https://github.com/Wajahat-techie/kgp-gyankosh](https://github.com/Wajahat-techie/kgp-gyankosh)
 - 📊 **Presentation Slide Deck**: [Download PPTX (17.8 MB)](docs/KGP_Gyankosh_Presentation.pptx)
 - 📝 **Presentation Speaker Notes**: [Download Notes (DOCX)](docs/KGP_Gyankosh_Presentation_Notes.docx)
-- 📑 **System Architecture PDF**: [Download PDF](docs/reports/KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf)
-- 📖 **Complete Documentation PDF**: [Download PDF](docs/reports/KGP_Gyankosh_Complete_Documentation.pdf)
+- 📑 **System Architecture & Files Reference PDF**: [Download PDF](docs/reports/KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf)
+- 📖 **Line-by-Line Code Documentation PDF**: [Download PDF](docs/reports/KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf)
 
 ---
 

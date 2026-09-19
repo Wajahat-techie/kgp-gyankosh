@@ -774,7 +774,6 @@ def main():
             ("📝 Presentation Notes (DOCX)", os.path.join(docs_dir, "KGP_Gyankosh_Presentation_Notes.docx"), "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
             ("🏛️ System Architecture PDF", os.path.join(reports_dir, "KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf"), "application/pdf"),
             ("📖 Line-by-Line Code Doc PDF", os.path.join(reports_dir, "KGP_Gyankosh_Line_By_Line_Code_Documentation.pdf"), "application/pdf"),
-            ("📘 Complete Documentation PDF", os.path.join(reports_dir, "KGP_Gyankosh_Complete_Documentation.pdf"), "application/pdf"),
         ]
         available_reports = [
             (label, os.path.basename(r_path), r_path, mime)
