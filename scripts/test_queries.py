@@ -30,8 +30,8 @@ def run_test_queries():
     llm = LLMClient()
 
     queries = [
-        "order for Release of Child Education Allowance for the 2025-26",
-        "Child Education Allowance 2025-26",
+        "What is the minimum attendance required for diploma courses?",
+        "Constitution of the Sports Committee",
         "What are the leave rules for faculty?",
         "Anti-Ragging Committee details"
     ]

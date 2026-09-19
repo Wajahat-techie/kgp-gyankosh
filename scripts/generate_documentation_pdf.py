@@ -393,7 +393,7 @@ def build_pdf(filename="KGP_Gyankosh_System_Architecture_and_Files_Reference.pdf
 
         [Paragraph("data/pdf/Orders.pdf", style_td_code), 
          Paragraph("Historical Orders Book", style_td), 
-         Paragraph("85-page comprehensive official scanned orders compilation covering administrative decisions, transfer sanctions, disciplinary actions, and committee notifications.", style_td)],
+         Paragraph("85-page comprehensive official scanned orders compilation covering administrative decisions, transfer sanctions, academic duties, and committee notifications.", style_td)],
 
         [Paragraph("output/index_manifest.json", style_td_code), 
          Paragraph("Indexing Catalog", style_td), 

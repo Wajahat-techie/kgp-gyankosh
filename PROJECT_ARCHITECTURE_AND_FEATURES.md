@@ -9,8 +9,8 @@
 **KGP Gyankosh** is an Enterprise Knowledge Assistant and Agentic Retrieval-Augmented Generation (RAG) platform developed specifically for the Administration Department of **Kashmir Government Polytechnic (KGP) College, Srinagar**.
 
 Polytechnic institutions manage thousands of confidential, high-stakes administrative records:
-- Government orders, sanction decrees, and financial release orders (e.g., Child Education Allowances).
-- Faculty deployment, disciplinary committee proceedings, and inquiry reports.
+- Government orders, administrative circulars, and departmental sanction decrees.
+- Faculty committee constitutions, departmental postings, and institutional duty rosters.
 - Board of Technical Education (BOTE) diploma admission circulars, examination schedules, and syllabus revisions.
 - Civil service leave sanctions (e.g., Paternity leave, Child Care leave, Medical leave under J&K Civil Service Rules 1979).
 
@@ -54,8 +54,8 @@ Both modes (RAG and General AI) feature **independent, mode-specific LLM selecto
 ---
 
 ### 🔍 Two-Stage Hybrid Retrieval + Cross-Encoder Reranking
-1. **Sparse Keyword Search (BM25)**: Accurately retrieves exact administrative codes, order numbers (e.g., `Order No: 15 of 2026`), and officer names.
-2. **Dense Vector Search (FAISS + `all-MiniLM-L6-v2`)**: Understands conceptual semantic queries (e.g., *"allowance for school fees"* matches *"Child Education Allowance"*). Supports cloud Google GenAI embeddings (`text-embedding-004`) and OpenAI embeddings (`text-embedding-3-small`).
+1. **Sparse Keyword Search (BM25)**: Accurately retrieves exact administrative codes, order numbers (e.g., `Order No: 02/2026` or `KGP/ADM/2026/104`), and officer names.
+2. **Dense Vector Search (FAISS + `all-MiniLM-L6-v2`)**: Understands conceptual semantic queries (e.g., *"fee concession and scholarship rules"* matches *"Tuition Fee Waiver (TFW) Scheme"*). Supports cloud Google GenAI embeddings (`text-embedding-004`) and OpenAI embeddings (`text-embedding-3-small`).
 3. **Reciprocal Rank Fusion (RRF)**: Merges sparse and dense ranked candidate lists fairly using rank reciprocals ($k=60$).
 4. **Deep Cross-Encoder Reranking (`ms-marco-MiniLM-L-6-v2`)**: Evaluates query-document pairs simultaneously using full cross-attention, eliminating false positives and delivering the top most relevant clauses to the LLM.
 

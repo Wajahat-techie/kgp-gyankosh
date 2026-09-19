@@ -17,7 +17,7 @@
 
 ### Institutional Background
 **Kashmir Government Polytechnic (KGP) College, Srinagar** (established in 1958 under the Department of Skill Development, Government of Jammu & Kashmir) is one of the oldest technical diploma institutions in the region. The administrative offices—including the Principal's Secretariat, Academic Section, Examination Wing, and Departmental Heads—handle thousands of official records every academic year:
-- Government orders, sanction orders, and financial release circulars (such as Child Education Allowances).
+- Government orders, institutional circulars, and departmental sanction notifications.
 - J&K State Board of Technical Education (SBOTE) notifications, examination schedules, and syllabus revisions.
 - Student attendance policies, fee concession circulars, and admission rosters.
 - Faculty service records, committee proceedings, and civil service leave sanctions governed by J&K Civil Service Regulations.
@@ -187,7 +187,7 @@ Users can dynamically switch between three LLM backends in the sidebar without r
 
 ### 3. Dense-Sparse Hybrid Search with RRF
 Neither vector search nor keyword search alone is sufficient for administrative documents:
-- Dense vector search (`all-MiniLM-L6-v2`) understands semantic concepts (e.g. *"financial help for school fees"* matches *"Child Education Allowance"*).
+- Dense vector search (`all-MiniLM-L6-v2`) understands semantic concepts (e.g. *"fee concession and scholarship rules"* matches *"Tuition Fee Waiver (TFW) Scheme"*).
 - Sparse search (BM25) ensures that exact order reference numbers (e.g. `Order No: 12 of 2026`) and institutional abbreviations (`SBOTE`, `NSS`, `JKBOSE`) are never missed.
 - The two result lists are merged using **Reciprocal Rank Fusion (RRF)**:
   $$\text{RRF Score}(d) = \sum_{m \in \{\text{dense}, \text{sparse}\}} \frac{w_m}{60 + \text{rank}_m(d)}$$
@@ -514,7 +514,7 @@ The following representative test cases demonstrate the system's accuracy, conve
 
 ### 2. Why Dense + Sparse Hybrid Search with Reciprocal Rank Fusion?
 *Decision*: Combine FAISS dense semantic search with BM25Okapi lexical matching using RRF.  
-*Rationale*: Pure vector embeddings excel at semantic paraphrasing (*"allowance for school expenses"* matching *"Child Education Allowance"*), but often miss exact administrative identifiers such as circular numbers (`KGP/ADM/2026/89`), acronyms (`SBOTE`, `JKBOSE`), or monetary figures (`Rs. 2,200`). BM25 handles exact tokens reliably. Combining both candidate lists with RRF ($k=60$) balances conceptual understanding with exact lexical precision.
+*Rationale*: Pure vector embeddings excel at semantic paraphrasing (*"tuition fee relief guidelines"* matching *"Tuition Fee Waiver (TFW) Regulations"*), but often miss exact administrative identifiers such as circular numbers (`KGP/ADM/2026/89`), acronyms (`SBOTE`, `JKBOSE`), or monetary figures (`Rs. 2,200`). BM25 handles exact tokens reliably. Combining both candidate lists with RRF ($k=60$) balances conceptual understanding with exact lexical precision.
 
 ### 3. Why Cross-Encoder Reranking?
 *Decision*: Add `cross-encoder/ms-marco-MiniLM-L-6-v2` as a second-stage ranking filter.  
