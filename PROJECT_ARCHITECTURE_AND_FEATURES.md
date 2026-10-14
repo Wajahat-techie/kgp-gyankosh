@@ -92,7 +92,6 @@ Both modes (RAG and General AI) feature **independent, mode-specific LLM selecto
 - **Streamlit Community Cloud Deployment**: Hosted live at [https://kgp-gyankosh.streamlit.app/](https://kgp-gyankosh.streamlit.app/).
 - **PyTorch CPU Build Optimization**: Configured `--extra-index-url https://download.pytorch.org/whl/cpu` to avoid downloading 3GB CUDA wheels, ensuring zero build memory/disk crashes.
 - **Pre-Built Ingestion Stores**: Production FAISS and BM25 databases pre-built and synchronized in Git (`output/`), eliminating cloud startup delays.
-- **Automated Keepalive Ping Workflow**: GitHub Actions workflow (`.github/workflows/keepalive.yaml`) runs automated health checks every 3 days to keep the cloud app permanently awake.
 
 ---
 
